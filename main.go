@@ -373,8 +373,6 @@ func getDE() string {
 	return "Unknown"
 }
 
-
-
 func getWMTheme() string {
 	out, err := exec.Command("gsettings", "get", "org.gnome.desktop.wm.preferences", "theme").Output()
 	if err != nil {
@@ -473,6 +471,14 @@ func formatBytes(bytes uint64) string {
 }
 
 func main() {
+	// Check if any command-line arguments were provided
+	if len(os.Args) > 1 {
+		// If arguments exist, pass them to the CLI handler
+		handleCLICommands()
+		return
+	}
+
+	// No arguments, run the normal fetcher
 	configPath := ".config/lunarfetch/config.json"
 	configFilePath, err := os.UserHomeDir()
 	if err != nil {
@@ -489,7 +495,6 @@ func main() {
 
 	var content strings.Builder
 
-
 	err = writeLogo(config, &content)
 	if err != nil {
 		log.Println(err)
@@ -497,4 +502,43 @@ func main() {
 
 	fmt.Print(content.String() + "\n")
 	displayInfo(config)
+}
+
+// handleCLICommands executes the CLI functionality from lunarfetch-cli.go
+func handleCLICommands() {
+	// Get the path to the current executable
+	exePath, err := os.Executable()
+	if err != nil {
+		fmt.Printf("Error getting executable path: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Get the directory containing the executable
+	exeDir := filepath.Dir(exePath)
+
+	// Path to lunarfetch-cli.go relative to the executable
+	cliPath := filepath.Join(exeDir, "scripts", "lunarfetch-cli.go")
+
+	// If we're running from the source directory (not installed)
+	if _, err := os.Stat(cliPath); os.IsNotExist(err) {
+		// Try to find it relative to the current working directory
+		cliPath = "scripts/lunarfetch-cli.go"
+	}
+
+	// Prepare the command to run the lunarfetch-cli.go script
+	args := os.Args[1:] // Skip the program name
+	cmd := exec.Command("go", append([]string{"run", cliPath}, args...)...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.Stdin = os.Stdin
+
+	// Run the command
+	err = cmd.Run()
+	if err != nil {
+		fmt.Printf("Error running CLI commands: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Exit after running the CLI command
+	os.Exit(0)
 }

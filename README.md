@@ -18,8 +18,7 @@ lunarfetch/
 │   ├── config.json     # Default configuration file
 │   └── logo.txt        # Sample ASCII art logo
 ├── scripts/
-│   ├── install.sh      # Installation script
-│   └── Makefile        # Make targets for common operations
+│   └── lunarfetch-cli.go  # CLI functionality script
 ├── main.go             # Main source code
 ├── go.mod              # Go module definition
 ├── go.sum              # Go module checksums
@@ -50,57 +49,33 @@ LunarFetch requires the following Linux packages to function properly:
 
 #### Installing Dependencies
 
-You can install the required dependencies using the provided Makefile targets:
-
-##### For Arch Linux:
+You can check and install the required dependencies using the CLI commands:
 
 ```bash
-make -f scripts/Makefile install-deps-arch
-```
+# Check for missing dependencies
+lunarfetch check-deps
 
-##### For Debian/Ubuntu:
-
-```bash
-make -f scripts/Makefile install-deps-debian
-```
-
-##### Manual Installation on Arch Linux:
-
-```bash
-sudo pacman -S coreutils procps-ng util-linux lsb-release xorg-xrandr xorg-xdpyinfo pciutils gsettings-desktop-schemas
-```
-
-##### Manual Installation on Debian/Ubuntu:
-
-```bash
-sudo apt install coreutils procps lsb-release x11-xserver-utils mesa-utils pciutils gnome-settings-daemon
+# Install dependencies (automatically detects your distribution)
+lunarfetch install-deps
 ```
 
 ### Installation
 
-#### Using the Installation Script
+#### Using the Installation Command
 
 ```bash
 # Clone the repository
 git clone https://github.com/Lunaris-Project/lunarfetch.git
 cd lunarfetch
 
-# Run the installation script
-./scripts/install.sh
+# Run the installation command
+lunarfetch install
 ```
 
-#### Using Make with Dependency Check
+If you haven't built the binary yet, you can use:
 
 ```bash
-# Clone the repository
-git clone https://github.com/Lunaris-Project/lunarfetch.git
-cd lunarfetch
-
-# Check dependencies first
-make -f scripts/Makefile check-deps
-
-# Install using make
-make -f scripts/Makefile install
+go run main.go install
 ```
 
 #### Manual Installation
@@ -111,7 +86,7 @@ git clone https://github.com/Lunaris-Project/lunarfetch.git
 cd lunarfetch
 
 # Build the binary
-go build -o lunarfetch
+go run main.go build
 
 # Create config directory and copy files
 mkdir -p ~/.config/lunarfetch/logos
@@ -134,12 +109,40 @@ Simply run the command in your terminal:
 lunarfetch
 ```
 
+### CLI Commands
+
+LunarFetch includes a built-in CLI with the following commands:
+
+```bash
+# Show help information
+lunarfetch help
+
+# Install LunarFetch
+lunarfetch install
+
+# Uninstall LunarFetch (keeps config files)
+lunarfetch uninstall
+
+# Completely remove LunarFetch and all config files
+lunarfetch purge
+
+# Check for required dependencies
+lunarfetch check-deps
+
+# Install missing dependencies
+lunarfetch install-deps
+
+# Build the binary without installing
+lunarfetch build
+```
+
 ### Features
 
 - **Customizable UI**: Change borders, separators, and layout
 - **Random ASCII Art**: Display random ASCII art from a directory
 - **Modular Information**: Show/hide specific system information
 - **Fast Performance**: Written in Go for speed and efficiency
+- **Integrated CLI**: Installation and management commands built into the main binary
 
 LunarFetch can display:
 
@@ -355,8 +358,8 @@ To uninstall LunarFetch:
 
 ```bash
 # Remove just the binary
-make -f scripts/Makefile uninstall
+lunarfetch uninstall
 
 # Or remove everything including configuration
-make -f scripts/Makefile purge
+lunarfetch purge
 ```
