@@ -72,9 +72,30 @@ Enable/disable logos and set logo directory
 
 #### Modules
 Toggle display of system information:
-- System: OS, hostname, kernel, uptime, packages
-- Hardware: CPU, GPU, memory, disk, battery
-- Desktop: DE, resolution, themes, icons, terminal
+
+**System Information:**
+- `show_os` - Operating system
+- `show_host` - Hostname
+- `show_kernel` - Kernel version
+- `show_uptime` - System uptime
+- `show_packages` - Package count
+- `show_user` - Username
+- `show_shell` - Current shell
+
+**Hardware Information:**
+- `show_cpu` - CPU information
+- `show_gpu` - GPU information
+- `show_memory` - Memory usage
+- `show_disk` - Disk usage
+- `show_battery` - Battery status
+- `show_resolution` - Screen resolution
+
+**Desktop Environment:**
+- `show_de` - Desktop environment
+- `show_wm_theme` - Window manager theme
+- `show_theme` - GTK theme
+- `show_icons` - Icon theme
+- `show_terminal` - Terminal name
 
 ## Example Configurations
 
