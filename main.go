@@ -567,14 +567,57 @@ func checkDependencies() []Dependency {
 func installDependencies() {
 	fmt.Printf("%sInstalling dependencies...%s\n", ColorCyan, ColorReset)
 
-	// Check distribution
+	// Try to detect distribution
+	var distro string
+
+	// First try lsb_release if available
 	out, err := exec.Command("lsb_release", "-si").Output()
-	if err != nil {
-		fmt.Printf("%sUnsupported distribution. Please install dependencies manually.%s\n", ColorRed, ColorReset)
-		return
+	if err == nil {
+		distro = strings.TrimSpace(string(out))
+	} else {
+		// If lsb_release fails, try checking for distribution-specific files
+		if _, err := os.Stat("/etc/arch-release"); err == nil {
+			distro = "arch"
+		} else if _, err := os.Stat("/etc/debian_version"); err == nil {
+			distro = "debian"
+		} else if _, err := os.Stat("/etc/os-release"); err == nil {
+			// Read /etc/os-release for more information
+			osReleaseContent, err := os.ReadFile("/etc/os-release")
+			if err == nil {
+				osRelease := string(osReleaseContent)
+				if strings.Contains(strings.ToLower(osRelease), "arch") {
+					distro = "arch"
+				} else if strings.Contains(strings.ToLower(osRelease), "debian") {
+					distro = "debian"
+				} else if strings.Contains(strings.ToLower(osRelease), "ubuntu") {
+					distro = "ubuntu"
+				}
+			}
+		}
 	}
 
-	distro := strings.TrimSpace(string(out))
+	// If we couldn't detect the distribution, prompt the user
+	if distro == "" {
+		fmt.Printf("%sCould not automatically detect your distribution.%s\n", ColorYellow, ColorReset)
+		fmt.Printf("Please select your distribution:\n")
+		fmt.Printf("1. Arch Linux\n")
+		fmt.Printf("2. Debian/Ubuntu\n")
+		fmt.Printf("3. Other\n")
+		fmt.Printf("Enter your choice (1-3): ")
+
+		var choice string
+		fmt.Scanln(&choice)
+
+		switch choice {
+		case "1":
+			distro = "arch"
+		case "2":
+			distro = "debian"
+		default:
+			fmt.Printf("%sUnsupported distribution. Please install dependencies manually.%s\n", ColorRed, ColorReset)
+			return
+		}
+	}
 
 	// Install dependencies based on distribution
 	if strings.Contains(strings.ToLower(distro), "arch") {
@@ -768,6 +811,26 @@ func commandExists(cmd string) bool {
 }
 
 func dependencyExists(dep Dependency) bool {
+	// Special case for lsb_release - we don't want to fail the dependency check
+	// if lsb_release is not installed, as we're trying to install it
+	if dep.Name == "LSB release" {
+		// If we're checking for lsb_release and we're on Arch (detected by /etc/arch-release),
+		// return false to allow installation to proceed
+		if _, err := os.Stat("/etc/arch-release"); err == nil {
+			for _, cmd := range dep.Commands {
+				if cmd == "lsb_release" {
+					// Check if it's actually installed
+					if _, err := exec.LookPath(cmd); err == nil {
+						return true
+					}
+					// Not installed, but we'll handle this specially
+					return false
+				}
+			}
+		}
+	}
+
+	// Normal dependency check
 	for _, cmd := range dep.Commands {
 		if commandExists(cmd) {
 			return true
