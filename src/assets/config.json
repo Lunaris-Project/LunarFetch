@@ -1,9 +1,9 @@
 {
   "decorations": {
-    "topLeft": "╭",
-    "topRight": "╮",
-    "bottomLeft": "╰",
-    "bottomRight": "╯",
+    "topLeft": "┌",
+    "topRight": "┐",
+    "bottomLeft": "└",
+    "bottomRight": "┘",
     "topEdge": "─",
     "bottomEdge": "─",
     "leftEdge": "│",
@@ -14,8 +14,17 @@
     "enableLogo": true,
     "type": "file",
     "content": "",
-    "location": "left",
+    "location": "center",
     "logoPath": "~/.config/lunarfetch/logos"
+  },
+  "image": {
+    "enableImage": false,
+    "imagePath": "~/.config/lunarfetch/images",
+    "width": 80,
+    "height": 24,
+    "renderMode": "detailed",
+    "ditherMode": "none",
+    "terminalOutput": false
   },
   "modules": {
     "show_user": true,
