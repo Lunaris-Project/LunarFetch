@@ -82,7 +82,7 @@ sudo apt install coreutils procps lsb-release x11-xserver-utils mesa-utils pciut
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/lunarfetch.git
+git clone https://github.com/Lunaris-Project/lunarfetch.git
 cd lunarfetch
 
 # Run the installation script
@@ -93,7 +93,7 @@ cd lunarfetch
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/lunarfetch.git
+git clone https://github.com/Lunaris-Project/lunarfetch.git
 cd lunarfetch
 
 # Check dependencies first
@@ -107,7 +107,7 @@ make -f scripts/Makefile install
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/lunarfetch.git
+git clone https://github.com/Lunaris-Project/lunarfetch.git
 cd lunarfetch
 
 # Build the binary
