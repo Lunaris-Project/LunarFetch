@@ -1,137 +1,289 @@
 # LunarFetch
 
+A modern, customizable system information display tool with image rendering capabilities.
+
 <div align="center">
-  <img src="src/assets/image.png" alt="LunarFetch Logo" width="1080">
+<a href="#features">Features</a> •
+<a href="#installation">Installation</a> •
+<a href="#usage">Usage</a> •
+<a href="#configuration">Configuration</a> •
+<a href="#contributing">Contributing</a> •
+<a href="#license">License</a>
 </div>
 
-A customizable system information tool written in Go.
+## ✨ Features
 
-## Quick Start
+- **System Information Display**: Shows detailed system information including OS, kernel, CPU, GPU, memory usage, and more
+- **Image Rendering**: Supports multiple image rendering protocols (Sixel, Kitty, iTerm2, Chafa)
+- **ASCII Art Logos**: Display custom ASCII art logos alongside system information
+- **Customizable UI**: Configure colors, layout, and information displayed
+- **Cross-Platform**: Works on various Linux distributions
+- **Modular Design**: Easily extendable with new information modules
+
+## 📦 Installation
+
+### From Source
 
 ```bash
-# Install
+# Clone the repository
 git clone https://github.com/Lunaris-Project/lunarfetch.git
 cd lunarfetch
-go run main.go install
 
-# Run
+# Build the binary
+go build -o lunarfetch
+
+# Install (optional)
+./lunarfetch install
+```
+
+### Dependencies
+
+LunarFetch requires the following dependencies for full functionality:
+
+- `go` (for building)
+- `chafa` (for image rendering)
+
+You can install dependencies with:
+
+```bash
+./lunarfetch install-deps
+```
+
+## 🚀 Usage
+
+```bash
+# Basic usage
 lunarfetch
+
+# With debug information
+lunarfetch --debug
+
+# Using a custom configuration file
+lunarfetch -c /path/to/config.json
+
+# Display version information
+lunarfetch --version
 ```
 
-## Features
-
-- Customizable UI with different box styles
-- Random ASCII art logos
-- Image support (PNG, JPG, JPEG, WebP)
-- Modular information display
-- Fast performance
-- Built-in installation commands
-
-## Project Structure
+### Command Line Options
 
 ```
-lunarfetch/
-├── src/
-│   ├── assets/        # Assets like logos and default config
-│   ├── components/    # Core components
-│   └── scripts/       # CLI functionality scripts
-│   └── utils/         # Utility functions
-├── tests/
-│   ├── image/         # Image display tests
-│   └── config/        # Configuration tests
-├── main.go            # Main source code
-├── go.mod             # Go module definition
-├── go.sum             # Go module checksums
-└── README.md          # This documentation
+Usage: lunarfetch [options]
+
+Options:
+  -c, --config <file>   Use custom configuration file
+  -d, --debug           Enable debug mode
+  -v, --version         Display version information
+  -h, --help            Show this help message
+
+Commands:
+  install               Install LunarFetch to your system
+  uninstall             Remove LunarFetch from your system
+  install-deps          Install required system dependencies
+  build                 Build the binary without installing
+  setup-image           Configure image display support
 ```
 
-## Dependencies
+## ⚙️ Configuration
 
-Core: `coreutils`, `procps`/`procps-ng`
-Optional: `lsb-release`, `xorg-xrandr`, `pciutils`, `gsettings-desktop-schemas`, `imagemagick`
+LunarFetch can be configured using a JSON configuration file located at `~/.config/lunarfetch/config.json`.
 
-Check and install dependencies:
-```bash
-lunarfetch check-deps
-lunarfetch install-deps
+### Configuration Overview
+
+<details>
+<summary><b>🔳 Decorations</b> - Box drawing characters for display</summary>
+
+```json
+"decorations": {
+  "topLeft": "╭",
+  "topRight": "╮",
+  "bottomLeft": "╰",
+  "bottomRight": "╯",
+  "topEdge": "─",
+  "bottomEdge": "─",
+  "leftEdge": "│",
+  "rightEdge": "│",
+  "separator": ": "
+}
 ```
 
-## Commands
+**Alternative styles:**
+- Regular box: `"topLeft": "┌", "topRight": "┐", "bottomLeft": "└", "bottomRight": "┘"`
+- Rounded box (shown above): `"topLeft": "╭", "topRight": "╮", "bottomLeft": "╰", "bottomRight": "╯"`
+- Double line: `"topLeft": "╔", "topRight": "╗", "bottomLeft": "╚", "bottomRight": "╝", "topEdge": "═", "bottomEdge": "═", "leftEdge": "║", "rightEdge": "║"`
+</details>
 
-```bash
-lunarfetch              # Display system info
-lunarfetch help         # Show help
-lunarfetch install      # Install to system
-lunarfetch uninstall    # Remove binary
-lunarfetch purge        # Remove binary and config
-lunarfetch check-deps   # Check dependencies
-lunarfetch install-deps # Install dependencies
-lunarfetch build        # Build without installing
-lunarfetch setup-image  # Configure image display settings
+<details>
+<summary><b>🖼️ Logo</b> - ASCII art logo configuration</summary>
+
+```json
+"logo": {
+  "enableLogo": true,
+  "type": "ascii",
+  "content": "",
+  "location": "center",
+  "logoPath": "~/.config/lunarfetch/logos",
+  "position": "side"
+}
 ```
 
-## Configuration
+**Options:**
+- `enableLogo`: Enable/disable logo display (`true` or `false`)
+- `type`: Logo type (`"ascii"` or `"file"` to load from a file)
+- `content`: Custom ASCII content (when type is `"ascii"`)
+- `location`: Text alignment (`"center"`, `"left"`, or `"right"`)
+- `logoPath`: Directory containing logo files
+- `position`: Position relative to system info (`"side"` or `"above"`)
+</details>
 
-Configuration file: `~/.config/lunarfetch/config.json`
+<details>
+<summary><b>🖼️ Image</b> - Image display configuration</summary>
 
-### Basic Setup
-
-```bash
-mkdir -p ~/.config/lunarfetch/logos ~/.config/lunarfetch/images
-cp src/assets/config.json ~/.config/lunarfetch/config.json
-cp src/assets/logo.txt ~/.config/lunarfetch/logos/moon.txt
-# If you have images, copy them to the images directory
-cp your-image.png ~/.config/lunarfetch/images/
+```json
+"image": {
+  "enableImage": true,
+  "enabled": true,
+  "random": true,
+  "imagePath": "~/.config/lunarfetch/images",
+  "width": 40,
+  "height": 20,
+  "renderMode": "block",
+  "ditherMode": "floyd-steinberg",
+  "terminalOutput": true,
+  "displayMode": "block",
+  "protocol": "chafa",
+  "scale": 1,
+  "offset": 2,
+  "background": "transparent",
+  "position": "side"
+}
 ```
 
-### Configuration Options
+**Options:**
+- `enableImage`/`enabled`: Enable/disable image display (`true` or `false`)
+- `random`: Randomly select an image from the `imagePath` directory (`true` or `false`)
+- `imagePath`: Path to image file or directory (for random selection)
+- `width`/`height`: Dimensions in terminal characters
+- `renderMode`: Image rendering detail level (`"detailed"`, `"simple"`, `"block"`, or `"ascii"`)
+- `ditherMode`: Dithering algorithm (`"none"` or `"floyd-steinberg"`)
+- `terminalOutput`: Output to terminal directly (`true` or `false`)
+- `displayMode`: How to display the image (`"auto"`, `"block"`, or `"ascii"`)
+- `protocol`: Image display protocol:
+  - `"auto"`: Auto-detect the best protocol
+  - `"sixel"`: For terminals with Sixel support
+  - `"kitty"`: For Kitty terminal
+  - `"iterm2"`: For iTerm2 terminal on macOS
+  - `"chafa"`: Uses the Chafa tool
+  - `"uberzug"`: Uses Überzug (Linux only)
+  - `"terminal-image"`: Uses the terminal-image tool
+- `scale`: Image scaling factor (integer)
+- `offset`: Offset from terminal edge (integer)
+- `background`: Background color (`"transparent"` or a color value)
+- `position`: Position relative to system info (`"side"` or `"above"`)
+</details>
 
-#### Decorations
-Change box characters: corners, edges, and separators
+<details>
+<summary><b>📋 Display</b> - Controls display order</summary>
 
-#### Logo
-Enable/disable ASCII art logos and set logo directory
+```json
+"display": {
+  "showLogoFirst": false,
+  "showImageFirst": true
+}
+```
 
-#### Image
-Enable/disable image display and configure image settings:
-- `enableImage` - Enable or disable image display
-- `imagePath` - Path to image or directory containing images
-- `width` - Width of the image in characters
-- `height` - Height of the image in characters
-- `renderMode` - Rendering mode: "simple", "detailed", or "default"
-- `ditherMode` - Dithering mode: "none" or "floyd-steinberg"
-- `terminalOutput` - Use ANSI color output instead of ASCII art
+**Options:**
+- `showLogoFirst`: When `true`, logo appears before system info
+- `showImageFirst`: When `true`, image appears before system info
 
-#### Modules
-Toggle display of system information:
+Note: If both are `true`, logo takes precedence.
+</details>
 
-**System Information:**
-- `show_os` - Operating system
-- `show_host` - Hostname
-- `show_kernel` - Kernel version
-- `show_uptime` - System uptime
-- `show_packages` - Package count
-- `show_user` - Username
-- `show_shell` - Current shell
+<details>
+<summary><b>🔣 Icons</b> - Icons for system information</summary>
 
-**Hardware Information:**
-- `show_cpu` - CPU information
-- `show_gpu` - GPU information
-- `show_memory` - Memory usage
-- `show_disk` - Disk usage
-- `show_battery` - Battery status
-- `show_resolution` - Screen resolution
+```json
+"icons": {
+  "host": "󰒋",
+  "user": "󰀄",
+  "os": "󰣇",
+  "kernel": "󰣇",
+  "uptime": "󰔟",
+  "terminal": "󰆍",
+  "shell": "󰆍",
+  "disk": "󰋊",
+  "memory": "󰍛",
+  "packages": "󰏗",
+  "battery": "󰂄",
+  "gpu": "󰢮",
+  "cpu": "󰘚",
+  "resolution": "󰍹",
+  "de": "󰧨",
+  "wm_theme": "󰏘",
+  "theme": "󰔯",
+  "icons": "󰀻"
+}
+```
 
-**Desktop Environment:**
-- `show_de` - Desktop environment
-- `show_wm_theme` - Window manager theme
-- `show_theme` - GTK theme
-- `show_icons` - Icon theme
-- `show_terminal` - Terminal name
+You can also use emoji instead of Nerd Font icons:
+```json
+"icons": {
+  "host": "🏠",
+  "user": "👤",
+  "os": "🐧",
+  "kernel": "🧠",
+  "uptime": "⏱️",
+  "terminal": "💻",
+  "shell": "🐚",
+  "disk": "💾",
+  "memory": "🧮",
+  "packages": "📦",
+  "battery": "🔋",
+  "gpu": "🎮",
+  "cpu": "⚙️",
+  "resolution": "🖥️",
+  "de": "🖼️",
+  "wm_theme": "🎨",
+  "theme": "🎭",
+  "icons": "🔍"
+}
+```
+</details>
 
-## Example Configurations
+<details>
+<summary><b>📊 Modules</b> - Enable/disable information components</summary>
 
-### Minimal
+```json
+"modules": {
+  "show_user": true,
+  "show_cpu": true,
+  "show_gpu": true,
+  "show_uptime": true,
+  "show_shell": true,
+  "show_memory": true,
+  "show_packages": true,
+  "show_os": true,
+  "show_host": true,
+  "show_kernel": true,
+  "show_battery": true,
+  "show_disk": true,
+  "show_resolution": true,
+  "show_de": true,
+  "show_wm_theme": true,
+  "show_theme": true,
+  "show_icons": true,
+  "show_terminal": true
+}
+```
+
+Set any option to `false` to hide that specific information.
+</details>
+
+### Example Configurations
+
+<details>
+<summary><b>Minimal Configuration</b></summary>
+
 ```json
 {
   "decorations": {
@@ -139,7 +291,7 @@ Toggle display of system information:
     "bottomLeft": "└", "bottomRight": "┘",
     "topEdge": "─", "bottomEdge": "─",
     "leftEdge": "│", "rightEdge": "│",
-    "separator": "─"
+    "separator": ": "
   },
   "logo": {
     "enableLogo": false
@@ -154,8 +306,11 @@ Toggle display of system information:
   }
 }
 ```
+</details>
 
-### With Image Support
+<details>
+<summary><b>Image-Only Configuration</b></summary>
+
 ```json
 {
   "decorations": {
@@ -163,168 +318,19 @@ Toggle display of system information:
     "bottomLeft": "└", "bottomRight": "┘",
     "topEdge": "─", "bottomEdge": "─",
     "leftEdge": "│", "rightEdge": "│",
-    "separator": "─"
+    "separator": ": "
   },
   "logo": {
     "enableLogo": false
   },
   "image": {
     "enableImage": true,
+    "random": true,
     "imagePath": "~/.config/lunarfetch/images",
-    "width": 80,
-    "height": 24,
-    "renderMode": "detailed",
-    "ditherMode": "floyd-steinberg",
-    "terminalOutput": false
-  },
-  "modules": {
-    "show_user": true,
-    "show_os": true,
-    "show_kernel": true,
-    "show_uptime": true,
-    "show_packages": true,
-    "show_memory": true
-  }
-}
-```
-
-### Rounded Box
-```json
-{
-  "decorations": {
-    "topLeft": "╭", "topRight": "╮",
-    "bottomLeft": "╰", "bottomRight": "╯",
-    "topEdge": "─", "bottomEdge": "─",
-    "leftEdge": "│", "rightEdge": "│",
-    "separator": "─"
-  }
-}
-```
-
-### Double Line
-```json
-{
-  "decorations": {
-    "topLeft": "╔", "topRight": "╗",
-    "bottomLeft": "╚", "bottomRight": "╝",
-    "topEdge": "═", "bottomEdge": "═",
-    "leftEdge": "║", "rightEdge": "║",
-    "separator": "═"
-  }
-}
-```
-
-## Image Display
-
-LunarFetch supports displaying actual images in the terminal using various protocols:
-
-- **Sixel**: For terminals that support Sixel graphics (xterm with sixel support, mlterm)
-- **Kitty**: For Kitty terminal
-- **iTerm2**: For iTerm2 terminal on macOS
-- **Chafa**: Uses the Chafa tool to display images
-- **Überzug**: Uses Überzug to display images (Linux only)
-- **terminal-image**: Uses the terminal-image tool
-
-To set up image support:
-
-1. Run `./lunarfetch setup-image`
-2. Place your images in `~/.config/lunarfetch/images/`
-3. Edit the config file to customize image settings:
-
-```json
-"image": {
-  "enabled": true,
-  "random": false,
-  "imagePath": "~/.config/lunarfetch/images/myimage.png",
-  "width": 40,
-  "height": 20,
-  "protocol": "auto",
-  "scale": 1,
-  "offset": 2,
-  "position": "side"
-}
-```
-
-#### Image Settings
-
-- `enabled`: Enable image display
-- `random`: Randomly select an image from the directory specified in `imagePath`
-- `imagePath`: Path to an image file or directory
-- `width`: Width of the image in characters
-- `height`: Height of the image in characters
-- `protocol`: Image display protocol ("auto", "sixel", "kitty", "iterm2", "chafa", "uberzug", "terminal-image")
-- `scale`: Scale factor for the image
-- `offset`: Offset from the edge of the terminal
-- `position`: Position of the image relative to system info ("side" or "above")
-
-#### Display Options
-
-LunarFetch now supports displaying images or logos either above or beside the system information:
-
-```json
-"logo": {
-  "enableLogo": true,
-  "type": "ascii",
-  "logoPath": "~/.config/lunarfetch/logos",
-  "position": "side"
-},
-"image": {
-  "enabled": true,
-  "random": false,
-  "imagePath": "~/.config/lunarfetch/images/myimage.png",
-  "width": 40,
-  "height": 20,
-  "protocol": "auto",
-  "scale": 1,
-  "offset": 2,
-  "position": "side"
-},
-"display": {
-  "showLogoFirst": true,
-  "showImageFirst": false
-}
-```
-
-#### Display Configuration Options
-
-- **Logo Position**:
-  - `logo.position`: Set to "side" (default) to display the logo beside system info, or "above" to display it above
-  
-- **Image Position**:
-  - `image.position`: Set to "side" (default) to display the image beside system info, or "above" to display it above
-  
-- **Display Order** (when using "side" position):
-  - `display.showLogoFirst`: When true, displays the logo before system info (default: true)
-  - `display.showImageFirst`: When true, displays the image before system info (default: false)
-
-When both logo and image are enabled:
-- If both have position "above", the logo takes precedence
-- If both have position "side", the display order is determined by `showLogoFirst` and `showImageFirst`
-
-### Example with Image Above System Info
-
-```json
-{
-  "decorations": {
-    "topLeft": "╭", "topRight": "╮",
-    "bottomLeft": "╰", "bottomRight": "╯",
-    "topEdge": "─", "bottomEdge": "─",
-    "leftEdge": "│", "rightEdge": "│",
-    "separator": "─"
-  },
-  "logo": {
-    "enableLogo": false
-  },
-  "image": {
-    "enabled": true,
-    "random": false,
-    "imagePath": "~/.config/lunarfetch/images/myimage.png",
     "width": 40,
     "height": 20,
-    "protocol": "auto",
-    "scale": 1,
-    "offset": 2,
-    "position": "above"
+    "protocol": "chafa",
+    "position": "side"
   },
   "modules": {
     "show_user": true,
@@ -336,56 +342,107 @@ When both logo and image are enabled:
   }
 }
 ```
+</details>
 
-## Modules
+<details>
+<summary><b>Full Configuration</b></summary>
 
-LunarFetch can display various system information modules:
-
-- OS information
-- Host information
-- Kernel version
-- CPU information
-- GPU information
-- Memory usage
-- Disk usage
-- Shell
-- Terminal
-- Package count
-- Battery status
-- Desktop environment
-- Theme information
-- Icon theme
-- Resolution
-
-## Testing
-
-LunarFetch includes a comprehensive test suite to verify its functionality:
-
-### Image Display Tests
-
-Test the image display functionality:
-
-```bash
-go run tests/image/test-image.go ~/.config/lunarfetch/images/test.png
+```json
+{
+  "decorations": {
+    "topLeft": "╭",
+    "topRight": "╮",
+    "bottomLeft": "╰",
+    "bottomRight": "╯",
+    "topEdge": "─",
+    "bottomEdge": "─",
+    "leftEdge": "│",
+    "rightEdge": "│",
+    "separator": ": "
+  },
+  "logo": {
+    "enableLogo": true,
+    "type": "ascii",
+    "content": "",
+    "location": "center",
+    "logoPath": "~/.config/lunarfetch/logos",
+    "position": "side"
+  },
+  "image": {
+    "enableImage": true,
+    "enabled": true,
+    "random": true,
+    "imagePath": "~/.config/lunarfetch/images",
+    "width": 40,
+    "height": 20,
+    "renderMode": "block",
+    "ditherMode": "floyd-steinberg",
+    "terminalOutput": true,
+    "displayMode": "block",
+    "protocol": "chafa",
+    "scale": 1,
+    "offset": 2,
+    "background": "transparent",
+    "position": "side"
+  },
+  "display": {
+    "showLogoFirst": false,
+    "showImageFirst": true
+  },
+  "icons": {
+    "host": "󰒋",
+    "user": "󰀄",
+    "os": "󰣇",
+    "kernel": "󰣇",
+    "uptime": "󰔟",
+    "terminal": "󰆍",
+    "shell": "󰆍",
+    "disk": "󰋊",
+    "memory": "󰍛",
+    "packages": "󰏗",
+    "battery": "󰂄",
+    "gpu": "󰢮",
+    "cpu": "󰘚",
+    "resolution": "󰍹",
+    "de": "󰧨",
+    "wm_theme": "󰏘",
+    "theme": "󰔯",
+    "icons": "󰀻"
+  },
+  "modules": {
+    "show_user": true,
+    "show_cpu": true,
+    "show_gpu": true,
+    "show_uptime": true,
+    "show_shell": true,
+    "show_memory": true,
+    "show_packages": true,
+    "show_os": true,
+    "show_host": true,
+    "show_kernel": true,
+    "show_battery": true,
+    "show_disk": true,
+    "show_resolution": true,
+    "show_de": true,
+    "show_wm_theme": true,
+    "show_theme": true,
+    "show_icons": true,
+    "show_terminal": true
+  }
+}
 ```
+</details>
 
-### Configuration Tests
+## 🤝 Contributing
 
-Test different configuration options:
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-```bash
-# Generate test configurations
-go run tests/config/main.go
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-# Test image above configuration
-go run main.go -c ~/.config/lunarfetch/test-above.json
+## 📄 License
 
-# Test image beside configuration
-go run main.go -c ~/.config/lunarfetch/test-side.json
-```
-
-For more details, see the [Tests README](tests/README.md).
-
-## License
-
-MIT
+This project is licensed under the MIT License - see the LICENSE file for details.

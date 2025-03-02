@@ -26,6 +26,26 @@
     "ditherMode": "none",
     "terminalOutput": false
   },
+  "icons": {
+    "host": "󰒋",
+    "user": "󰀄",
+    "os": "󰣇",
+    "kernel": "󰣇",
+    "uptime": "󰔟",
+    "terminal": "󰆍",
+    "shell": "󰆍",
+    "disk": "󰋊",
+    "memory": "󰍛",
+    "packages": "󰏗",
+    "battery": "󰂄",
+    "gpu": "󰢮",
+    "cpu": "󰘚",
+    "resolution": "󰍹",
+    "de": "󰧨",
+    "wm_theme": "󰏘",
+    "theme": "󰔯",
+    "icons": "󰀻"
+  },
   "modules": {
     "show_user": true,
     "show_cpu": true,

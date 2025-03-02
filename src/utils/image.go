@@ -14,10 +14,51 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/disintegration/imaging"
 	"github.com/mattn/go-sixel"
 	_ "golang.org/x/image/webp" // Register WebP format
+)
+
+// Supported image formats
+const (
+	FormatPNG  = ".png"
+	FormatJPG  = ".jpg"
+	FormatJPEG = ".jpeg"
+	FormatWEBP = ".webp"
+)
+
+// Supported rendering protocols
+const (
+	ProtocolAuto      = "auto"
+	ProtocolSixel     = "sixel"
+	ProtocolKitty     = "kitty"
+	ProtocolITerm2    = "iterm2"
+	ProtocolChafa     = "chafa"
+	ProtocolUberzug   = "uberzug"
+	ProtocolTermImage = "terminal-image"
+)
+
+// Supported display modes
+const (
+	DisplayModeAuto  = "auto"
+	DisplayModeBlock = "block"
+	DisplayModeASCII = "ascii"
+)
+
+// Supported render modes
+const (
+	RenderModeDetailed = "detailed"
+	RenderModeSimple   = "simple"
+	RenderModeBlock    = "block"
+	RenderModeASCII    = "ascii"
+)
+
+// Supported dither modes
+const (
+	DitherModeNone           = "none"
+	DitherModeFloydSteinberg = "floyd-steinberg"
 )
 
 // ImageLoader handles loading and processing images
@@ -27,21 +68,24 @@ type ImageLoader struct {
 
 // ImageConfig holds configuration for image processing
 type ImageConfig struct {
-	ImagePath      string
-	Width          int
-	Height         int
-	RenderMode     string
-	DitherMode     string
-	TerminalOutput bool
-	DisplayMode    string
-	Protocol       string
-	Scale          int
-	Offset         int
-	Background     string
+	ImagePath      string // Path to the image file or directory
+	Width          int    // Width in terminal characters
+	Height         int    // Height in terminal characters
+	RenderMode     string // Rendering mode (detailed, simple, block, ascii)
+	DitherMode     string // Dithering algorithm (none, floyd-steinberg)
+	TerminalOutput bool   // Whether to output directly to terminal
+	DisplayMode    string // Display mode (auto, block, ascii)
+	Protocol       string // Image protocol (auto, sixel, kitty, iterm2, chafa, uberzug, terminal-image)
+	Scale          int    // Image scaling factor
+	Offset         int    // Offset from terminal edge
+	Background     string // Background color (transparent or color value)
 }
 
 // NewImageLoader creates a new ImageLoader with the specified configuration
 func NewImageLoader(config Config) *ImageLoader {
+	// Initialize random seed for random image selection
+	rand.Seed(time.Now().UnixNano())
+
 	return &ImageLoader{
 		Config: ImageConfig{
 			ImagePath:      config.Image.ImagePath,
@@ -61,13 +105,11 @@ func NewImageLoader(config Config) *ImageLoader {
 
 // LoadImage loads an image from the specified path
 func (i *ImageLoader) LoadImage(imagePath string) (image.Image, error) {
-	expandedPath, err := os.UserHomeDir()
+	// Expand home directory if path starts with ~
+	fullPath, err := expandPath(imagePath)
 	if err != nil {
 		return nil, err
 	}
-
-	// Replace ~ with home directory
-	fullPath := strings.Replace(imagePath, "~", expandedPath, 1)
 
 	// Open the image file
 	file, err := os.Open(fullPath)
@@ -83,6 +125,20 @@ func (i *ImageLoader) LoadImage(imagePath string) (image.Image, error) {
 	}
 
 	return img, nil
+}
+
+// expandPath expands the ~ in a path to the user's home directory
+func expandPath(path string) (string, error) {
+	if !strings.HasPrefix(path, "~") {
+		return path, nil
+	}
+
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+
+	return strings.Replace(path, "~", homeDir, 1), nil
 }
 
 // ResizeImage resizes an image to the specified dimensions
@@ -350,13 +406,33 @@ func (i *ImageLoader) DisplayWithChafa(img image.Image) (string, error) {
 	// Close the file to ensure it's written
 	tmpFile.Close()
 
+	// Determine symbol set based on render mode
+	symbolSet := "all"
+	if i.Config.RenderMode == "block" {
+		symbolSet = "block"
+	} else if i.Config.RenderMode == "ascii" {
+		symbolSet = "ascii"
+	}
+
 	// Build Chafa command with appropriate options
 	args := []string{
 		"--size", fmt.Sprintf("%dx%d", i.Config.Width, i.Config.Height),
 		"--colors", "full",
-		"--symbols", "all",
-		tmpFile.Name(),
+		"--symbols", symbolSet,
 	}
+
+	// Add dithering options if specified
+	if i.Config.DitherMode == "none" {
+		args = append(args, "--dither", "none")
+	} else if i.Config.DitherMode == "floyd-steinberg" {
+		args = append(args, "--dither", "diffusion")
+	}
+
+	// Add optimization options
+	args = append(args, "--optimize", "4")
+
+	// Add the image file path
+	args = append(args, tmpFile.Name())
 
 	// Execute Chafa
 	cmd := exec.Command(chafaPath, args...)

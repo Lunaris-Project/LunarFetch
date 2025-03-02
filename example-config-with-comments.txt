@@ -1,0 +1,98 @@
+# LunarFetch Configuration File
+# This is a commented version of the configuration file to help you understand each option.
+# Note: JSON doesn't officially support comments, so this file is for reference only.
+# Copy the parts you need to your actual config.json file without the comments.
+
+{
+  # Box drawing characters for the display frame
+  "decorations": {
+    "topLeft": "╭",      # Top-left corner character
+    "topRight": "╮",     # Top-right corner character
+    "bottomLeft": "╰",   # Bottom-left corner character
+    "bottomRight": "╯",  # Bottom-right corner character
+    "topEdge": "─",      # Top edge character
+    "bottomEdge": "─",   # Bottom edge character
+    "leftEdge": "│",     # Left edge character
+    "rightEdge": "│",    # Right edge character
+    "separator": ": "    # Separator between key and value
+  },
+  
+  # Logo configuration
+  "logo": {
+    "enableLogo": true,  # Whether to display a logo
+    "type": "ascii",     # Logo type: "ascii" or "file"
+    "content": "",       # Custom ASCII content (if type is "ascii")
+    "location": "center", # Text alignment: "center", "left", or "right"
+    "logoPath": "~/.config/lunarfetch/logos", # Path to logo files
+    "position": "side"   # Position: "side" or "above"
+  },
+  
+  # Image configuration
+  "image": {
+    "enableImage": true, # Whether to display an image
+    "enabled": true,     # Legacy field for backward compatibility
+    "random": true,      # Whether to select a random image from the directory
+    "imagePath": "~/.config/lunarfetch/images", # Path to image file or directory
+    "width": 40,         # Width in terminal characters
+    "height": 20,        # Height in terminal characters
+    "renderMode": "block", # Rendering mode: "detailed", "simple", "block", "ascii"
+    "ditherMode": "floyd-steinberg", # Dithering algorithm: "none", "floyd-steinberg"
+    "terminalOutput": true, # Whether to output directly to terminal
+    "displayMode": "block", # Display mode: "auto", "block", "ascii"
+    "protocol": "chafa", # Image protocol: "auto", "sixel", "kitty", "iterm2", "chafa", "uberzug", "terminal-image"
+    "scale": 1,          # Image scaling factor
+    "offset": 2,         # Offset from terminal edge
+    "background": "transparent", # Background color: "transparent" or color value
+    "position": "side"   # Position: "side" or "above"
+  },
+  
+  # Display order configuration
+  "display": {
+    "showLogoFirst": false, # Whether to show logo before system info
+    "showImageFirst": true  # Whether to show image before system info
+  },
+  
+  # Icons for system information
+  "icons": {
+    "battery": "󰂄",     # Battery icon
+    "cpu": "󰘚",         # CPU icon
+    "de": "󰧨",          # Desktop Environment icon
+    "disk": "󰋊",        # Disk icon
+    "gpu": "󰢮",         # GPU icon
+    "host": "󰒋",        # Host icon
+    "icons": "󰀻",       # Icons icon
+    "kernel": "󰣇",      # Kernel icon
+    "memory": "󰍛",      # Memory icon
+    "os": "󰣇",          # OS icon
+    "packages": "󰏗",    # Packages icon
+    "resolution": "󰍹",  # Resolution icon
+    "shell": "󰆍",       # Shell icon
+    "terminal": "󰆍",    # Terminal icon
+    "theme": "󰔯",       # Theme icon
+    "uptime": "󰔟",      # Uptime icon
+    "user": "󰀄",        # User icon
+    "wm_theme": "󰏘"     # Window Manager Theme icon
+  },
+  
+  # Module visibility configuration
+  "modules": {
+    "show_battery": true,    # Whether to show battery information
+    "show_cpu": true,        # Whether to show CPU information
+    "show_de": true,         # Whether to show desktop environment information
+    "show_disk": true,       # Whether to show disk information
+    "show_gpu": true,        # Whether to show GPU information
+    "show_host": true,       # Whether to show host information
+    "show_icons": true,      # Whether to show icons information
+    "show_kernel": true,     # Whether to show kernel information
+    "show_memory": true,     # Whether to show memory information
+    "show_os": true,         # Whether to show OS information
+    "show_packages": true,   # Whether to show packages information
+    "show_resolution": true, # Whether to show resolution information
+    "show_shell": true,      # Whether to show shell information
+    "show_terminal": true,   # Whether to show terminal information
+    "show_theme": true,      # Whether to show theme information
+    "show_uptime": true,     # Whether to show uptime information
+    "show_user": true,       # Whether to show user information
+    "show_wm_theme": true    # Whether to show window manager theme information
+  }
+} 

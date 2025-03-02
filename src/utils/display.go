@@ -159,58 +159,58 @@ func (d *DisplayManager) GenerateContent() string {
 	defer d.cacheMutex.RUnlock()
 
 	if d.Config.Modules.ShowHost {
-		content.WriteString(fmt.Sprintf(" 󰒋 Host: %s\n", d.infoCache["Host"]))
+		content.WriteString(fmt.Sprintf(" %s Host: %s\n", d.Config.Icons.Host, d.infoCache["Host"]))
 	}
 	if d.Config.Modules.ShowUser {
-		content.WriteString(fmt.Sprintf(" 󰀄 User: %s\n", d.infoCache["User"]))
+		content.WriteString(fmt.Sprintf(" %s User: %s\n", d.Config.Icons.User, d.infoCache["User"]))
 	}
 	if d.Config.Modules.ShowOS {
-		content.WriteString(fmt.Sprintf(" 󰣇 OS: %s\n", d.infoCache["OS"]))
+		content.WriteString(fmt.Sprintf(" %s OS: %s\n", d.Config.Icons.OS, d.infoCache["OS"]))
 	}
 	if d.Config.Modules.ShowKernel {
-		content.WriteString(fmt.Sprintf(" 󰣇 Kernel: %s\n", d.infoCache["Kernel"]))
+		content.WriteString(fmt.Sprintf(" %s Kernel: %s\n", d.Config.Icons.Kernel, d.infoCache["Kernel"]))
 	}
 	if d.Config.Modules.ShowUptime {
-		content.WriteString(fmt.Sprintf(" 󰔟 Uptime: %s\n", d.infoCache["Uptime"]))
+		content.WriteString(fmt.Sprintf(" %s Uptime: %s\n", d.Config.Icons.Uptime, d.infoCache["Uptime"]))
 	}
 	if d.Config.Modules.ShowTerminal {
-		content.WriteString(fmt.Sprintf(" 󰆍 Terminal: %s\n", d.infoCache["Terminal"]))
+		content.WriteString(fmt.Sprintf(" %s Terminal: %s\n", d.Config.Icons.Terminal, d.infoCache["Terminal"]))
 	}
 	if d.Config.Modules.ShowShell {
-		content.WriteString(fmt.Sprintf(" 󰆍 Shell: %s\n", d.infoCache["Shell"]))
+		content.WriteString(fmt.Sprintf(" %s Shell: %s\n", d.Config.Icons.Shell, d.infoCache["Shell"]))
 	}
 	if d.Config.Modules.ShowDisk {
-		content.WriteString(fmt.Sprintf(" 󰋊 Disk: %s\n", d.infoCache["Disk"]))
+		content.WriteString(fmt.Sprintf(" %s Disk: %s\n", d.Config.Icons.Disk, d.infoCache["Disk"]))
 	}
 	if d.Config.Modules.ShowMemory {
-		content.WriteString(fmt.Sprintf(" 󰍛 Memory: %s\n", d.infoCache["Memory"]))
+		content.WriteString(fmt.Sprintf(" %s Memory: %s\n", d.Config.Icons.Memory, d.infoCache["Memory"]))
 	}
 	if d.Config.Modules.ShowPackages {
-		content.WriteString(fmt.Sprintf(" 󰏗 Packages: %s\n", d.infoCache["Packages"]))
+		content.WriteString(fmt.Sprintf(" %s Packages: %s\n", d.Config.Icons.Packages, d.infoCache["Packages"]))
 	}
 	if d.Config.Modules.ShowBattery {
-		content.WriteString(fmt.Sprintf(" 󰂄 Battery: %s\n", d.infoCache["Battery"]))
+		content.WriteString(fmt.Sprintf(" %s Battery: %s\n", d.Config.Icons.Battery, d.infoCache["Battery"]))
 	}
 	if d.Config.Modules.ShowGPU {
-		content.WriteString(fmt.Sprintf(" 󰢮 GPU: %s\n", d.infoCache["GPU"]))
+		content.WriteString(fmt.Sprintf(" %s GPU: %s\n", d.Config.Icons.GPU, d.infoCache["GPU"]))
 	}
 	if d.Config.Modules.ShowCPU {
-		content.WriteString(fmt.Sprintf(" 󰘚 CPU: %s\n", d.infoCache["CPU"]))
+		content.WriteString(fmt.Sprintf(" %s CPU: %s\n", d.Config.Icons.CPU, d.infoCache["CPU"]))
 	}
 	if d.Config.Modules.ShowResolution {
-		content.WriteString(fmt.Sprintf(" 󰍹 Resolution: %s\n", d.infoCache["Resolution"]))
+		content.WriteString(fmt.Sprintf(" %s Resolution: %s\n", d.Config.Icons.Resolution, d.infoCache["Resolution"]))
 	}
 	if d.Config.Modules.ShowWMTheme {
-		content.WriteString(fmt.Sprintf(" 󰏘 WM Theme: %s\n", d.infoCache["WM Theme"]))
+		content.WriteString(fmt.Sprintf(" %s WM Theme: %s\n", d.Config.Icons.WMTheme, d.infoCache["WM Theme"]))
 	}
 	if d.Config.Modules.ShowTheme {
-		content.WriteString(fmt.Sprintf(" 󰔯 Theme: %s\n", d.infoCache["Theme"]))
+		content.WriteString(fmt.Sprintf(" %s Theme: %s\n", d.Config.Icons.Theme, d.infoCache["Theme"]))
 	}
 	if d.Config.Modules.ShowIcons {
-		content.WriteString(fmt.Sprintf(" 󰀻 Icons: %s\n", d.infoCache["Icons"]))
+		content.WriteString(fmt.Sprintf(" %s Icons: %s\n", d.Config.Icons.Icons, d.infoCache["Icons"]))
 	}
 	if d.Config.Modules.ShowDE {
-		content.WriteString(fmt.Sprintf(" 󰧨 Desktop: %s\n", d.infoCache["Desktop"]))
+		content.WriteString(fmt.Sprintf(" %s Desktop: %s\n", d.Config.Icons.DE, d.infoCache["Desktop"]))
 	}
 
 	content.WriteString(strings.Repeat(d.Config.Decorations.Separator, 30) + "\n")
