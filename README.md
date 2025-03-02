@@ -110,9 +110,11 @@ LunarFetch can be configured using a JSON configuration file located at `~/.conf
 ```
 
 **Alternative styles:**
+
 - Regular box: `"topLeft": "┌", "topRight": "┐", "bottomLeft": "└", "bottomRight": "┘"`
 - Rounded box (shown above): `"topLeft": "╭", "topRight": "╮", "bottomLeft": "╰", "bottomRight": "╯"`
 - Double line: `"topLeft": "╔", "topRight": "╗", "bottomLeft": "╚", "bottomRight": "╝", "topEdge": "═", "bottomEdge": "═", "leftEdge": "║", "rightEdge": "║"`
+
 </details>
 
 <details>
@@ -130,12 +132,14 @@ LunarFetch can be configured using a JSON configuration file located at `~/.conf
 ```
 
 **Options:**
+
 - `enableLogo`: Enable/disable logo display (`true` or `false`)
 - `type`: Logo type (`"ascii"` or `"file"` to load from a file)
 - `content`: Custom ASCII content (when type is `"ascii"`)
 - `location`: Text alignment (`"center"`, `"left"`, or `"right"`)
 - `logoPath`: Directory containing logo files
 - `position`: Position relative to system info (`"side"` or `"above"`)
+
 </details>
 
 <details>
@@ -162,6 +166,7 @@ LunarFetch can be configured using a JSON configuration file located at `~/.conf
 ```
 
 **Options:**
+
 - `enableImage`/`enabled`: Enable/disable image display (`true` or `false`)
 - `random`: Randomly select an image from the `imagePath` directory (`true` or `false`)
 - `imagePath`: Path to image file or directory (for random selection)
@@ -190,6 +195,7 @@ LunarFetch can be configured using a JSON configuration file located at `~/.conf
 - `offset`: Offset from terminal edge (integer)
 - `background`: Background color (`"transparent"` or a color value)
 - `position`: Position relative to system info (`"side"` or `"above"`)
+
 </details>
 
 <details>
@@ -203,10 +209,12 @@ LunarFetch can be configured using a JSON configuration file located at `~/.conf
 ```
 
 **Options:**
+
 - `showLogoFirst`: When `true`, logo appears before system info
 - `showImageFirst`: When `true`, image appears before system info
 
 Note: If both are `true`, logo takes precedence.
+
 </details>
 
 <details>
@@ -236,6 +244,7 @@ Note: If both are `true`, logo takes precedence.
 ```
 
 You can also use emoji instead of Nerd Font icons:
+
 ```json
 "icons": {
   "host": "🏠",
@@ -258,6 +267,7 @@ You can also use emoji instead of Nerd Font icons:
   "icons": "🔍"
 }
 ```
+
 </details>
 
 <details>
@@ -287,6 +297,7 @@ You can also use emoji instead of Nerd Font icons:
 ```
 
 Set any option to `false` to hide that specific information.
+
 </details>
 
 ### Example Configurations
@@ -316,6 +327,7 @@ Set any option to `false` to hide that specific information.
   }
 }
 ```
+
 </details>
 
 <details>
@@ -352,6 +364,7 @@ Set any option to `false` to hide that specific information.
   }
 }
 ```
+
 </details>
 
 <details>
@@ -441,6 +454,7 @@ Set any option to `false` to hide that specific information.
   }
 }
 ```
+
 </details>
 
 ## 🎨 Image Rendering and Dithering
@@ -458,34 +472,10 @@ LunarFetch supports various image rendering techniques to display images in your
 LunarFetch supports multiple protocols for rendering images in the terminal:
 
 1. **Chafa**: The most compatible option that works in virtually any terminal. Chafa converts images to colored text characters.
-
 2. **Sixel**: A graphics format supported by terminals like xterm with sixel extension, mlterm, and mintty.
-
 3. **Kitty Graphics Protocol**: A modern protocol for displaying images in the Kitty terminal.
-
 4. **iTerm2 Graphics Protocol**: For displaying images in iTerm2 on macOS.
-
 5. **Uberzug**: A Linux-specific tool for displaying images in the terminal.
-
-### Understanding Dithering
-
-Dithering is a technique used in image processing to create the illusion of color depth in images with a limited color palette. LunarFetch implements the Floyd-Steinberg dithering algorithm, which works as follows:
-
-1. **Color Reduction**: When displaying images in terminals with limited color capabilities, dithering helps maintain visual quality while reducing the number of colors used.
-
-2. **Error Diffusion**: The algorithm processes each pixel, finds the closest available color, and distributes the error (difference) to neighboring pixels according to a specific pattern:
-   ```
-       X   7/16
-   3/16 5/16 1/16
-   ```
-   Where X is the current pixel, and the fractions represent how much of the error is distributed to each neighboring pixel.
-
-3. **Visual Benefits**: Dithering creates patterns of dots that, when viewed from a distance, appear to have more colors than are actually used. This is particularly useful for:
-   - Smooth gradients
-   - Detailed images
-   - Photos with subtle color variations
-
-To enable dithering, set `"ditherMode": "floyd-steinberg"` in your configuration.
 
 ## 🤝 Contributing
 
