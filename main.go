@@ -211,6 +211,8 @@ func displayOutput(config utils.Config, sysInfoOutput, logoOutput, imageOutput s
 	if config.Image.Position == "above" && (config.Image.Enabled || config.Image.EnableImage) && imageOutput != "" {
 		// Display image above system info
 		fmt.Print(imageOutput)
+		// Add a newline to ensure separation between image and system info
+		fmt.Println()
 		fmt.Print(sysInfoOutput)
 		return
 	}

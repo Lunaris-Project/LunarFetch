@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"fmt"
 	"image"
+	"image/color"
 	_ "image/jpeg" // Register JPEG format
 	"image/png"
 	_ "image/png" // Register PNG format
-	"math"
 	"math/rand"
 	"os"
 	"os/exec"
@@ -15,6 +15,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"io/ioutil"
 
 	"github.com/disintegration/imaging"
 	"github.com/mattn/go-sixel"
@@ -31,13 +33,12 @@ const (
 
 // Supported rendering protocols
 const (
-	ProtocolAuto      = "auto"
-	ProtocolSixel     = "sixel"
-	ProtocolKitty     = "kitty"
-	ProtocolITerm2    = "iterm2"
-	ProtocolChafa     = "chafa"
-	ProtocolUberzug   = "uberzug"
-	ProtocolTermImage = "terminal-image"
+	ProtocolAuto    = "auto"
+	ProtocolSixel   = "sixel"
+	ProtocolKitty   = "kitty"
+	ProtocolITerm2  = "iterm2"
+	ProtocolChafa   = "chafa"
+	ProtocolUberzug = "uberzug"
 )
 
 // Supported display modes
@@ -75,7 +76,7 @@ type ImageConfig struct {
 	DitherMode     string // Dithering algorithm (none, floyd-steinberg)
 	TerminalOutput bool   // Whether to output directly to terminal
 	DisplayMode    string // Display mode (auto, block, ascii)
-	Protocol       string // Image protocol (auto, sixel, kitty, iterm2, chafa, uberzug, terminal-image)
+	Protocol       string // Image protocol (auto, sixel, kitty, iterm2, chafa, uberzug)
 	Scale          int    // Image scaling factor
 	Offset         int    // Offset from terminal edge
 	Background     string // Background color (transparent or color value)
@@ -297,7 +298,8 @@ func (i *ImageLoader) DisplayWithKitty(img image.Image) (string, error) {
 	encoded := base64Encode(buf.Bytes())
 
 	// Format the Kitty graphics protocol command
-	cmd := fmt.Sprintf("\033_Ga=T,f=100,s=%d,v=%d;%s\033\\",
+	// Use 'a=T' for temporary image and add explicit newline after the image
+	cmd := fmt.Sprintf("\033_Ga=T,f=100,s=%d,v=%d;%s\033\\\n",
 		img.Bounds().Dx(), img.Bounds().Dy(), encoded)
 
 	return cmd, nil
@@ -383,113 +385,160 @@ func (i *ImageLoader) DisplayWithUberzug(img image.Image, path string) (string, 
 
 // DisplayWithChafa displays an image using Chafa
 func (i *ImageLoader) DisplayWithChafa(img image.Image) (string, error) {
-	// Check if Chafa is installed
-	chafaPath, err := exec.LookPath("chafa")
+	// Check if chafa is installed
+	_, err := exec.LookPath("chafa")
 	if err != nil {
-		return "", fmt.Errorf("Chafa is not installed: %v", err)
+		return "", fmt.Errorf("chafa is not installed")
 	}
 
 	// Create a temporary file for the image
-	tmpFile, err := os.CreateTemp("", "lunarfetch-*.png")
+	tmpFile, err := ioutil.TempFile("", "lunarfetch-*.png")
 	if err != nil {
-		return "", fmt.Errorf("error creating temporary file: %v", err)
+		return "", err
 	}
-	defer tmpFile.Close()
 	defer os.Remove(tmpFile.Name())
 
 	// Save the image to the temporary file
 	err = png.Encode(tmpFile, img)
 	if err != nil {
-		return "", fmt.Errorf("error saving image: %v", err)
+		return "", err
 	}
-
-	// Close the file to ensure it's written
 	tmpFile.Close()
 
-	// Determine symbol set based on render mode
-	symbolSet := "all"
-	if i.Config.RenderMode == "block" {
-		symbolSet = "block"
-	} else if i.Config.RenderMode == "ascii" {
-		symbolSet = "ascii"
-	}
-
-	// Build Chafa command with appropriate options
-	args := []string{
-		"--size", fmt.Sprintf("%dx%d", i.Config.Width, i.Config.Height),
-		"--colors", "full",
-		"--symbols", symbolSet,
-	}
-
-	// Add dithering options if specified
-	if i.Config.DitherMode == "none" {
-		args = append(args, "--dither", "none")
-	} else if i.Config.DitherMode == "floyd-steinberg" {
-		args = append(args, "--dither", "diffusion")
-	}
-
-	// Add optimization options
-	args = append(args, "--optimize", "4")
-
-	// Add the image file path
-	args = append(args, tmpFile.Name())
-
-	// Execute Chafa
-	cmd := exec.Command(chafaPath, args...)
+	// Simply run chafa with the image path - no extra parameters
+	cmd := exec.Command("chafa", tmpFile.Name())
 	output, err := cmd.Output()
 	if err != nil {
-		return "", fmt.Errorf("error running Chafa: %v", err)
+		return "", err
 	}
 
-	return string(output), nil
-}
-
-// DisplayWithTerminalImage displays an image using terminal-image
-func (i *ImageLoader) DisplayWithTerminalImage(img image.Image) (string, error) {
-	// Check if terminal-image is installed
-	termImgPath, err := exec.LookPath("terminal-image")
-	if err != nil {
-		return "", fmt.Errorf("terminal-image is not installed: %v", err)
+	// Ensure the output ends with a newline
+	result := string(output)
+	if !strings.HasSuffix(result, "\n") {
+		result += "\n"
 	}
 
-	// Create a temporary file for the image
-	tmpFile, err := os.CreateTemp("", "lunarfetch-*.png")
-	if err != nil {
-		return "", fmt.Errorf("error creating temporary file: %v", err)
-	}
-	defer tmpFile.Close()
-	defer os.Remove(tmpFile.Name())
-
-	// Save the image to the temporary file
-	err = png.Encode(tmpFile, img)
-	if err != nil {
-		return "", fmt.Errorf("error saving image: %v", err)
-	}
-
-	// Close the file to ensure it's written
-	tmpFile.Close()
-
-	// Execute terminal-image
-	cmd := exec.Command(termImgPath, tmpFile.Name())
-	output, err := cmd.Output()
-	if err != nil {
-		return "", fmt.Errorf("error running terminal-image: %v", err)
-	}
-
-	return string(output), nil
+	return result, nil
 }
 
 // ApplyDithering applies dithering to an image
 func (i *ImageLoader) ApplyDithering(img image.Image) image.Image {
-	// For now, we'll just return the original image since we removed the dither library
-	// In a real implementation, you would implement dithering algorithms here
 	if i.Config.DitherMode == "none" {
 		return img
 	}
 
-	// Simple implementation of Floyd-Steinberg dithering could be added here
-	// For now, just return the original image
-	return img
+	// Implement Floyd-Steinberg dithering
+	bounds := img.Bounds()
+	width, height := bounds.Dx(), bounds.Dy()
+
+	// Create a new RGBA image to hold the dithered result
+	dithered := imaging.New(width, height, color.NRGBA{0, 0, 0, 0})
+
+	// Copy the original image to the new one
+	for y := 0; y < height; y++ {
+		for x := 0; x < width; x++ {
+			dithered.Set(x, y, img.At(x, y))
+		}
+	}
+
+	// Convert to grayscale if needed for simpler dithering
+	if i.Config.DitherMode == "floyd-steinberg" {
+		// Floyd-Steinberg dithering implementation
+		for y := 0; y < height; y++ {
+			for x := 0; x < width; x++ {
+				// Get the original color
+				oldColor := dithered.At(x, y)
+				r, g, b, a := oldColor.RGBA()
+
+				// Convert to 8-bit color space
+				oldR := uint8(r >> 8)
+				oldG := uint8(g >> 8)
+				oldB := uint8(b >> 8)
+				oldA := uint8(a >> 8)
+
+				// Find the closest color in the palette (for 256 colors)
+				// This is a simplified version - just quantizing to 8 levels per channel
+				newR := uint8((int(oldR) / 32) * 32)
+				newG := uint8((int(oldG) / 32) * 32)
+				newB := uint8((int(oldB) / 32) * 32)
+
+				// Set the new color
+				newColor := color.RGBA{newR, newG, newB, oldA}
+				dithered.Set(x, y, newColor)
+
+				// Calculate the error
+				errR := int(oldR) - int(newR)
+				errG := int(oldG) - int(newG)
+				errB := int(oldB) - int(newB)
+
+				// Distribute the error to neighboring pixels
+				// Floyd-Steinberg distribution pattern:
+				//     X   7/16
+				// 3/16 5/16 1/16
+
+				// Right pixel
+				if x+1 < width {
+					c := dithered.At(x+1, y)
+					r, g, b, a := c.RGBA()
+					dithered.Set(x+1, y, color.RGBA{
+						uint8(clamp(int(r>>8) + errR*7/16)),
+						uint8(clamp(int(g>>8) + errG*7/16)),
+						uint8(clamp(int(b>>8) + errB*7/16)),
+						uint8(a >> 8),
+					})
+				}
+
+				// Bottom-left pixel
+				if x-1 >= 0 && y+1 < height {
+					c := dithered.At(x-1, y+1)
+					r, g, b, a := c.RGBA()
+					dithered.Set(x-1, y+1, color.RGBA{
+						uint8(clamp(int(r>>8) + errR*3/16)),
+						uint8(clamp(int(g>>8) + errG*3/16)),
+						uint8(clamp(int(b>>8) + errB*3/16)),
+						uint8(a >> 8),
+					})
+				}
+
+				// Bottom pixel
+				if y+1 < height {
+					c := dithered.At(x, y+1)
+					r, g, b, a := c.RGBA()
+					dithered.Set(x, y+1, color.RGBA{
+						uint8(clamp(int(r>>8) + errR*5/16)),
+						uint8(clamp(int(g>>8) + errG*5/16)),
+						uint8(clamp(int(b>>8) + errB*5/16)),
+						uint8(a >> 8),
+					})
+				}
+
+				// Bottom-right pixel
+				if x+1 < width && y+1 < height {
+					c := dithered.At(x+1, y+1)
+					r, g, b, a := c.RGBA()
+					dithered.Set(x+1, y+1, color.RGBA{
+						uint8(clamp(int(r>>8) + errR*1/16)),
+						uint8(clamp(int(g>>8) + errG*1/16)),
+						uint8(clamp(int(b>>8) + errB*1/16)),
+						uint8(a >> 8),
+					})
+				}
+			}
+		}
+	}
+
+	return dithered
+}
+
+// clamp ensures a value is between 0 and 255
+func clamp(value int) int {
+	if value < 0 {
+		return 0
+	}
+	if value > 255 {
+		return 255
+	}
+	return value
 }
 
 // RenderImage loads, processes, and renders an image
@@ -531,8 +580,6 @@ func (i *ImageLoader) RenderImage() (string, error) {
 		output, err = i.DisplayWithUberzug(img, i.Config.ImagePath)
 	case "chafa":
 		output, err = i.DisplayWithChafa(img)
-	case "terminal-image":
-		output, err = i.DisplayWithTerminalImage(img)
 	default:
 		// Try to detect the best protocol
 		output, err = i.AutoDetectProtocol(img)
@@ -570,29 +617,21 @@ func (i *ImageLoader) AutoDetectProtocol(img image.Image) (string, error) {
 		return i.DisplayWithChafa(img)
 	}
 
-	// Try terminal-image as a fallback
-	_, err = exec.LookPath("terminal-image")
-	if err == nil {
-		return i.DisplayWithTerminalImage(img)
-	}
-
 	// If all else fails, return an error
 	return "", fmt.Errorf("no suitable image display protocol detected")
 }
 
 // GetRandomImage returns a random image from the image directory
 func (i *ImageLoader) GetRandomImage() (string, error) {
-	expandedPath, err := os.UserHomeDir()
+	expandedPath, err := expandPath(i.Config.ImagePath)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("error expanding path: %v", err)
 	}
 
-	imagePath := strings.Replace(i.Config.ImagePath, "~", expandedPath, 1)
-
 	// Check if the path is a directory
-	fileInfo, err := os.Stat(imagePath)
+	fileInfo, err := os.Stat(expandedPath)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("error accessing image path: %v", err)
 	}
 
 	// If it's a single file, just render it
@@ -601,7 +640,7 @@ func (i *ImageLoader) GetRandomImage() (string, error) {
 	}
 
 	// If it's a directory, pick a random image
-	files, err := os.ReadDir(imagePath)
+	files, err := os.ReadDir(expandedPath)
 	if err != nil {
 		return "", fmt.Errorf("error reading directory: %v", err)
 	}
@@ -609,20 +648,20 @@ func (i *ImageLoader) GetRandomImage() (string, error) {
 	var imageFiles []string
 	for _, file := range files {
 		ext := strings.ToLower(filepath.Ext(file.Name()))
-		if ext == ".png" || ext == ".jpg" || ext == ".jpeg" || ext == ".webp" {
-			imageFiles = append(imageFiles, filepath.Join(imagePath, file.Name()))
+		if ext == FormatPNG || ext == FormatJPG || ext == FormatJPEG || ext == FormatWEBP {
+			imageFiles = append(imageFiles, filepath.Join(expandedPath, file.Name()))
 		}
 	}
 
 	if len(imageFiles) == 0 {
-		return "", fmt.Errorf("no image files found")
+		return "", fmt.Errorf("no image files found in %s", expandedPath)
 	}
 
 	// Save the original path
 	originalPath := i.Config.ImagePath
 
 	// Pick a random image
-	randomIndex := int(math.Floor(float64(len(imageFiles)) * rand.Float64()))
+	randomIndex := rand.Intn(len(imageFiles))
 	i.Config.ImagePath = imageFiles[randomIndex]
 
 	// Render the image

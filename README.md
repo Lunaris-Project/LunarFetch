@@ -7,6 +7,7 @@ A modern, customizable system information display tool with image rendering capa
 <a href="#installation">Installation</a> •
 <a href="#usage">Usage</a> •
 <a href="#configuration">Configuration</a> •
+<a href="#image-rendering-and-dithering">Image Rendering</a> •
 <a href="#contributing">Contributing</a> •
 <a href="#license">License</a>
 </div>
@@ -15,6 +16,7 @@ A modern, customizable system information display tool with image rendering capa
 
 - **System Information Display**: Shows detailed system information including OS, kernel, CPU, GPU, memory usage, and more
 - **Image Rendering**: Supports multiple image rendering protocols (Sixel, Kitty, iTerm2, Chafa)
+- **Advanced Dithering**: Implements Floyd-Steinberg dithering for improved image quality in terminals with limited color support
 - **ASCII Art Logos**: Display custom ASCII art logos alongside system information
 - **Customizable UI**: Configure colors, layout, and information displayed
 - **Cross-Platform**: Works on various Linux distributions
@@ -164,18 +166,26 @@ LunarFetch can be configured using a JSON configuration file located at `~/.conf
 - `random`: Randomly select an image from the `imagePath` directory (`true` or `false`)
 - `imagePath`: Path to image file or directory (for random selection)
 - `width`/`height`: Dimensions in terminal characters
-- `renderMode`: Image rendering detail level (`"detailed"`, `"simple"`, `"block"`, or `"ascii"`)
-- `ditherMode`: Dithering algorithm (`"none"` or `"floyd-steinberg"`)
+- `renderMode`: Image rendering detail level:
+  - `"detailed"`: Highest quality rendering with maximum detail
+  - `"simple"`: Simplified rendering with less detail
+  - `"block"`: Uses block characters for better terminal compatibility
+  - `"ascii"`: Converts image to ASCII characters only
+- `ditherMode`: Dithering algorithm:
+  - `"none"`: No dithering applied
+  - `"floyd-steinberg"`: Floyd-Steinberg dithering for better color representation
 - `terminalOutput`: Output to terminal directly (`true` or `false`)
-- `displayMode`: How to display the image (`"auto"`, `"block"`, or `"ascii"`)
+- `displayMode`: How to display the image:
+  - `"auto"`: Automatically select the best display mode
+  - `"block"`: Use block characters for display
+  - `"ascii"`: Use ASCII characters only
 - `protocol`: Image display protocol:
-  - `"auto"`: Auto-detect the best protocol
-  - `"sixel"`: For terminals with Sixel support
-  - `"kitty"`: For Kitty terminal
+  - `"auto"`: Auto-detect the best protocol for your terminal
+  - `"sixel"`: For terminals with Sixel support (like xterm with sixel extension)
+  - `"kitty"`: For Kitty terminal using its graphics protocol
   - `"iterm2"`: For iTerm2 terminal on macOS
-  - `"chafa"`: Uses the Chafa tool
+  - `"chafa"`: Uses the Chafa tool (most compatible option)
   - `"uberzug"`: Uses Überzug (Linux only)
-  - `"terminal-image"`: Uses the terminal-image tool
 - `scale`: Image scaling factor (integer)
 - `offset`: Offset from terminal edge (integer)
 - `background`: Background color (`"transparent"` or a color value)
@@ -432,6 +442,50 @@ Set any option to `false` to hide that specific information.
 }
 ```
 </details>
+
+## 🎨 Image Rendering and Dithering
+
+LunarFetch supports various image rendering techniques to display images in your terminal.
+
+### Supported Image Formats
+
+- PNG (`.png`)
+- JPEG (`.jpg`, `.jpeg`)
+- WebP (`.webp`)
+
+### Image Rendering Protocols
+
+LunarFetch supports multiple protocols for rendering images in the terminal:
+
+1. **Chafa**: The most compatible option that works in virtually any terminal. Chafa converts images to colored text characters.
+
+2. **Sixel**: A graphics format supported by terminals like xterm with sixel extension, mlterm, and mintty.
+
+3. **Kitty Graphics Protocol**: A modern protocol for displaying images in the Kitty terminal.
+
+4. **iTerm2 Graphics Protocol**: For displaying images in iTerm2 on macOS.
+
+5. **Uberzug**: A Linux-specific tool for displaying images in the terminal.
+
+### Understanding Dithering
+
+Dithering is a technique used in image processing to create the illusion of color depth in images with a limited color palette. LunarFetch implements the Floyd-Steinberg dithering algorithm, which works as follows:
+
+1. **Color Reduction**: When displaying images in terminals with limited color capabilities, dithering helps maintain visual quality while reducing the number of colors used.
+
+2. **Error Diffusion**: The algorithm processes each pixel, finds the closest available color, and distributes the error (difference) to neighboring pixels according to a specific pattern:
+   ```
+       X   7/16
+   3/16 5/16 1/16
+   ```
+   Where X is the current pixel, and the fractions represent how much of the error is distributed to each neighboring pixel.
+
+3. **Visual Benefits**: Dithering creates patterns of dots that, when viewed from a distance, appear to have more colors than are actually used. This is particularly useful for:
+   - Smooth gradients
+   - Detailed images
+   - Photos with subtle color variations
+
+To enable dithering, set `"ditherMode": "floyd-steinberg"` in your configuration.
 
 ## 🤝 Contributing
 

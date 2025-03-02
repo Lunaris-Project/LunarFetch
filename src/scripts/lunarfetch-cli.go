@@ -784,18 +784,6 @@ func Install() {
 		}
 	}
 
-	extremeConfigPath := filepath.Join(sourceDir, "extreme-conf.json")
-	if _, err := os.Stat(extremeConfigPath); err == nil {
-		dstPath := filepath.Join(configDir, "extreme-conf.json")
-		err = CopyFile(extremeConfigPath, dstPath)
-		if err != nil {
-			fmt.Printf("%sError: Could not copy extreme config: %s%s\n", ColorRed, err.Error(), ColorReset)
-		} else {
-			fmt.Printf("%sCreated extreme config at %s%s\n", ColorGreen, dstPath, ColorReset)
-		}
-	}
-
-	// Clean up temporary directory if we created one
 	if strings.Contains(sourceDir, "lunarfetch-install") {
 		fmt.Printf("%sCleaning up temporary directory...%s\n", ColorYellow, ColorReset)
 		os.RemoveAll(sourceDir)
@@ -805,7 +793,6 @@ func Install() {
 	fmt.Printf("%sYou can now run it from anywhere with the command: %slunarfetch%s\n", ColorGreen, ColorCyan, ColorReset)
 }
 
-// Uninstall removes LunarFetch from the system
 func Uninstall(purge bool) {
 	if purge {
 		fmt.Printf("%sPurging LunarFetch from your system...%s\n", ColorCyan, ColorReset)
@@ -813,7 +800,6 @@ func Uninstall(purge bool) {
 		fmt.Printf("%sUninstalling LunarFetch from your system...%s\n", ColorCyan, ColorReset)
 	}
 
-	// Remove binary
 	fmt.Printf("Removing LunarFetch binary...\n")
 	cmd := exec.Command("sudo", "rm", "-f", "/usr/local/bin/lunarfetch")
 	output, err := cmd.CombinedOutput()
@@ -824,7 +810,6 @@ func Uninstall(purge bool) {
 		fmt.Printf("%sSuccessfully removed LunarFetch binary.%s\n", ColorGreen, ColorReset)
 	}
 
-	// If purge, also remove configuration files
 	if purge {
 		homeDir, err := os.UserHomeDir()
 		if err != nil {
@@ -857,18 +842,15 @@ func Uninstall(purge bool) {
 	}
 }
 
-// SetupImage configures image display support
 func SetupImage() {
 	fmt.Printf("%sConfiguring image display support...%s\n", ColorCyan, ColorReset)
 
-	// Get home directory
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		fmt.Printf("%sError: Could not get home directory: %s%s\n", ColorRed, err.Error(), ColorReset)
 		os.Exit(1)
 	}
 
-	// Create config directory if it doesn't exist
 	configDir := filepath.Join(homeDir, ".config", "lunarfetch")
 	err = os.MkdirAll(configDir, 0755)
 	if err != nil {
@@ -876,7 +858,6 @@ func SetupImage() {
 		os.Exit(1)
 	}
 
-	// Create images directory if it doesn't exist
 	imagesDir := filepath.Join(configDir, "images")
 	err = os.MkdirAll(imagesDir, 0755)
 	if err != nil {
