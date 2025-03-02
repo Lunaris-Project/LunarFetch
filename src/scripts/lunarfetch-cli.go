@@ -370,27 +370,39 @@ func InstallDependencies() {
 	// Try to detect distribution
 	var distro string
 
-	// First try lsb_release if available
-	out, err := exec.Command("lsb_release", "-si").Output()
-	if err == nil {
-		distro = strings.TrimSpace(string(out))
+	// Check for package managers directly
+	pacmanExists, _ := exec.LookPath("pacman")
+	aptExists, _ := exec.LookPath("apt")
+	aptGetExists, _ := exec.LookPath("apt-get")
+
+	if pacmanExists != "" {
+		distro = "arch"
+	} else if aptExists != "" || aptGetExists != "" {
+		distro = "debian"
 	} else {
-		// If lsb_release fails, try checking for distribution-specific files
-		if _, err := os.Stat("/etc/arch-release"); err == nil {
-			distro = "arch"
-		} else if _, err := os.Stat("/etc/debian_version"); err == nil {
-			distro = "debian"
-		} else if _, err := os.Stat("/etc/os-release"); err == nil {
-			// Read /etc/os-release for more information
-			osReleaseContent, err := os.ReadFile("/etc/os-release")
-			if err == nil {
-				osRelease := string(osReleaseContent)
-				if strings.Contains(strings.ToLower(osRelease), "arch") {
-					distro = "arch"
-				} else if strings.Contains(strings.ToLower(osRelease), "debian") {
-					distro = "debian"
-				} else if strings.Contains(strings.ToLower(osRelease), "ubuntu") {
-					distro = "ubuntu"
+		// Fallback to traditional detection methods
+		// First try lsb_release if available
+		out, err := exec.Command("lsb_release", "-si").Output()
+		if err == nil {
+			distro = strings.TrimSpace(string(out))
+		} else {
+			// If lsb_release fails, try checking for distribution-specific files
+			if _, err := os.Stat("/etc/arch-release"); err == nil {
+				distro = "arch"
+			} else if _, err := os.Stat("/etc/debian_version"); err == nil {
+				distro = "debian"
+			} else if _, err := os.Stat("/etc/os-release"); err == nil {
+				// Read /etc/os-release for more information
+				osReleaseContent, err := os.ReadFile("/etc/os-release")
+				if err == nil {
+					osRelease := string(osReleaseContent)
+					if strings.Contains(strings.ToLower(osRelease), "arch") {
+						distro = "arch"
+					} else if strings.Contains(strings.ToLower(osRelease), "debian") {
+						distro = "debian"
+					} else if strings.Contains(strings.ToLower(osRelease), "ubuntu") {
+						distro = "ubuntu"
+					}
 				}
 			}
 		}
@@ -400,8 +412,8 @@ func InstallDependencies() {
 	if distro == "" {
 		fmt.Printf("%sCould not automatically detect your distribution.%s\n", ColorYellow, ColorReset)
 		fmt.Printf("Please select your distribution:\n")
-		fmt.Printf("1. Arch Linux\n")
-		fmt.Printf("2. Debian/Ubuntu\n")
+		fmt.Printf("1. Arch Linux (or Arch-based like Manjaro, EndeavourOS, etc.)\n")
+		fmt.Printf("2. Debian/Ubuntu (or derivatives)\n")
 		fmt.Printf("3. Other\n")
 		fmt.Printf("Enter your choice (1-3): ")
 
@@ -420,7 +432,7 @@ func InstallDependencies() {
 	}
 
 	// Install dependencies based on distribution
-	if strings.Contains(strings.ToLower(distro), "arch") {
+	if strings.Contains(strings.ToLower(distro), "arch") || distro == "arch" {
 		InstallArchDependencies()
 	} else if strings.Contains(strings.ToLower(distro), "debian") || strings.Contains(strings.ToLower(distro), "ubuntu") {
 		InstallDebianDependencies()
@@ -513,9 +525,8 @@ func DependencyExists(dep Dependency) bool {
 	// Special case for lsb_release - we don't want to fail the dependency check
 	// if lsb_release is not installed, as we're trying to install it
 	if dep.Name == "LSB release" {
-		// If we're checking for lsb_release and we're on Arch (detected by /etc/arch-release),
-		// return false to allow installation to proceed
-		if _, err := os.Stat("/etc/arch-release"); err == nil {
+		// Check if we're on an Arch-based system (detected by pacman)
+		if _, err := exec.LookPath("pacman"); err == nil {
 			for _, cmd := range dep.Commands {
 				if cmd == "lsb_release" {
 					// Check if it's actually installed

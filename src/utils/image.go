@@ -7,7 +7,6 @@ import (
 	"image/color"
 	_ "image/jpeg" // Register JPEG format
 	"image/png"
-	_ "image/png" // Register PNG format
 	"math/rand"
 	"os"
 	"os/exec"
@@ -328,7 +327,7 @@ func (i *ImageLoader) DisplayWithUberzug(img image.Image, path string) (string, 
 	// Check if Überzug is installed
 	_, err := exec.LookPath("ueberzug")
 	if err != nil {
-		return "", fmt.Errorf("Überzug is not installed: %v", err)
+		return "", fmt.Errorf("uberzug is not installed: %v", err)
 	}
 
 	// Create a temporary file for the image

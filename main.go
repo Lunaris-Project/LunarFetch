@@ -166,7 +166,7 @@ func loadLogo(config utils.Config) string {
 
 // loadImage loads and renders the image if enabled in the configuration
 func loadImage(config utils.Config) string {
-	if !config.Image.Enabled && !config.Image.EnableImage {
+	if !config.Image.EnableImage {
 		return ""
 	}
 

@@ -240,9 +240,6 @@ func applyConfigDefaults(config Config) Config {
 	}
 
 	// For backward compatibility
-	if config.Image.Enabled && !config.Image.EnableImage {
-		config.Image.EnableImage = true
-	}
 
 	return config
 }
