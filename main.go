@@ -3,18 +3,17 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"lunarfetch/src/scripts"
 	"lunarfetch/src/utils"
 )
 
-// Version information
 var (
 	Version     = scripts.Version
 	VersionDate = scripts.VersionDate
 )
 
-// Color codes for terminal output
 const (
 	ColorReset  = scripts.ColorReset
 	ColorRed    = scripts.ColorRed
@@ -24,73 +23,60 @@ const (
 	ColorCyan   = scripts.ColorCyan
 )
 
-// Dependency represents a system dependency
 type Dependency = scripts.Dependency
 
-// SimpleConfig is a simplified configuration structure for installation
 type SimpleConfig = scripts.SimpleConfig
 
-// Logo represents the logo configuration for installation
 type Logo = scripts.Logo
 
-// Info represents the information display configuration for installation
 type Info = scripts.Info
 
 func main() {
-	// Parse command line arguments and get config path if specified
+
 	configPath, shouldExit := parseCommandLineArgs()
 	if shouldExit {
 		return
 	}
 
-	// Load configuration
 	config := loadConfiguration(configPath)
 
-	// Run the main application
 	runLunarFetch(config)
 }
 
-// parseCommandLineArgs processes command line arguments and returns the config path if specified
-// Returns a boolean indicating if the program should exit after argument processing
 func parseCommandLineArgs() (string, bool) {
 	var configPath string
 
-	// No arguments provided, just run normally
 	if len(os.Args) <= 1 {
 		return "", false
 	}
 
-	// Check for help flag first
 	if os.Args[1] == "--help" || os.Args[1] == "-h" {
 		scripts.PrintUsage()
 		return "", true
 	}
 
-	// Check for version flag
 	if os.Args[1] == "--version" || os.Args[1] == "-v" {
 		scripts.PrintVersion()
 		return "", true
 	}
 
-	// Check for debug flag
 	if os.Args[1] == "--debug" || os.Args[1] == "-d" {
-		// Enable debug mode and shift arguments
+
 		os.Setenv("LUNARFETCH_DEBUG", "1")
 		if len(os.Args) > 2 {
-			// Shift arguments
+
 			os.Args = append([]string{os.Args[0]}, os.Args[2:]...)
 		} else {
-			// No more arguments, just run normally
+
 			os.Args = []string{os.Args[0]}
 		}
 	}
 
-	// Check for config flag
 	for i := 1; i < len(os.Args); i++ {
 		if os.Args[i] == "--config" || os.Args[i] == "-c" {
 			if i+1 < len(os.Args) {
 				configPath = os.Args[i+1]
-				// Remove these arguments
+
 				newArgs := append([]string{os.Args[0]}, os.Args[1:i]...)
 				if i+2 < len(os.Args) {
 					newArgs = append(newArgs, os.Args[i+2:]...)
@@ -101,7 +87,6 @@ func parseCommandLineArgs() (string, bool) {
 		}
 	}
 
-	// Check if there are any command arguments left
 	if len(os.Args) > 1 {
 		scripts.HandleCommands(os.Args[1:])
 		return "", true
@@ -110,7 +95,6 @@ func parseCommandLineArgs() (string, bool) {
 	return configPath, false
 }
 
-// loadConfiguration loads the configuration from the specified path or default location
 func loadConfiguration(configPath string) utils.Config {
 	configLoader := utils.NewConfigLoader()
 	var config utils.Config
@@ -133,24 +117,19 @@ func loadConfiguration(configPath string) utils.Config {
 	return config
 }
 
-// runLunarFetch runs the main application with the provided configuration
 func runLunarFetch(config utils.Config) {
-	// Initialize display manager
+
 	displayManager := utils.NewDisplayManager(config)
 	displayManager.InitializeComponents()
 
-	// Get system information
 	sysInfoOutput := displayManager.Display()
 
-	// Load logo and image if enabled
 	logoOutput := loadLogo(config)
 	imageOutput := loadImage(config)
 
-	// Display the information based on configuration
 	displayOutput(config, sysInfoOutput, logoOutput, imageOutput)
 }
 
-// loadLogo loads the logo if enabled in the configuration
 func loadLogo(config utils.Config) string {
 	if !config.Logo.EnableLogo {
 		return ""
@@ -164,7 +143,6 @@ func loadLogo(config utils.Config) string {
 	return logoOutput
 }
 
-// loadImage loads and renders the image if enabled in the configuration
 func loadImage(config utils.Config) string {
 	if !config.Image.EnableImage {
 		return ""
@@ -172,12 +150,10 @@ func loadImage(config utils.Config) string {
 
 	imageLoader := utils.NewImageLoader(config)
 
-	// Debug output
 	if os.Getenv("LUNARFETCH_DEBUG") == "1" {
 		printImageDebugInfo(config)
 	}
 
-	// Use GetRandomImage if random is enabled, otherwise use RenderImage
 	var imageOutput string
 	var err error
 
@@ -194,7 +170,6 @@ func loadImage(config utils.Config) string {
 	return imageOutput
 }
 
-// printImageDebugInfo prints debug information about image configuration
 func printImageDebugInfo(config utils.Config) {
 	fmt.Printf("Image settings:\n")
 	fmt.Printf("  Enabled: %v\n", config.Image.EnableImage)
@@ -205,44 +180,223 @@ func printImageDebugInfo(config utils.Config) {
 	fmt.Printf("  Random: %v\n", config.Image.Random)
 }
 
-// displayOutput displays the system information, logo, and image based on configuration
-func displayOutput(config utils.Config, sysInfoOutput, logoOutput, imageOutput string) {
-	// Check if image should be displayed above
-	if config.Image.Position == "above" && (config.Image.Enabled || config.Image.EnableImage) && imageOutput != "" {
-		// Display image above system info
-		fmt.Print(imageOutput)
-		// Add a newline to ensure separation between image and system info
-		fmt.Println()
-		fmt.Print(sysInfoOutput)
-		return
+func addSimpleMargin(sysInfo string, spaces int) string {
+	margin := strings.Repeat(" ", spaces)
+	lines := strings.Split(sysInfo, "\n")
+	for i, line := range lines {
+		lines[i] = margin + line
+	}
+	return strings.Join(lines, "\n")
+}
+
+func displayOutput(config utils.Config, sysInfo, logoOutput, imageOutput string) {
+	if os.Getenv("LUNARFETCH_DEBUG") == "1" {
+		fmt.Printf("Logo enabled: %v, position: %s\n", config.Logo.EnableLogo, config.Logo.Position)
+		fmt.Printf("Image enabled: %v, position: %s\n", config.Image.EnableImage, config.Image.Position)
 	}
 
-	// Check if logo should be displayed above
-	if config.Logo.Position == "above" && config.Logo.EnableLogo && logoOutput != "" {
-		// Display logo above system info
-		fmt.Print(logoOutput)
-		fmt.Println()
-		fmt.Print(sysInfoOutput)
-		return
+	sysInfo = strings.TrimSpace(sysInfo)
+	logoOutput = strings.TrimSpace(logoOutput)
+	imageOutput = strings.TrimSpace(imageOutput)
+
+	var topContent, middleContent, bottomContent string
+	middleContent = sysInfo
+
+	if config.Logo.EnableLogo {
+		switch config.Logo.Position {
+		case "above":
+			if topContent == "" {
+				topContent = logoOutput
+			} else {
+				topContent = topContent + "\n" + logoOutput
+			}
+		case "below":
+			if bottomContent == "" {
+				bottomContent = logoOutput
+			} else {
+				bottomContent = bottomContent + "\n" + logoOutput
+			}
+		}
 	}
 
-	// Display side by side (default behavior)
-	// Determine display order based on configuration
-	if config.Display.ShowImageFirst && (config.Image.Enabled || config.Image.EnableImage) && imageOutput != "" {
-		fmt.Print(imageOutput)
-	} else if config.Display.ShowLogoFirst && config.Logo.EnableLogo && logoOutput != "" {
-		fmt.Print(logoOutput)
-		fmt.Println()
+	if config.Image.EnableImage {
+		switch config.Image.Position {
+		case "above":
+			if topContent == "" {
+				topContent = imageOutput
+			} else {
+				topContent = topContent + "\n" + imageOutput
+			}
+		case "below":
+			if bottomContent == "" {
+				bottomContent = imageOutput
+			} else {
+				bottomContent = bottomContent + "\n" + imageOutput
+			}
+		}
 	}
 
-	// Display system information
-	fmt.Print(sysInfoOutput)
+	var result strings.Builder
 
-	// Display the other element if not shown first
-	if !config.Display.ShowImageFirst && (config.Image.Enabled || config.Image.EnableImage) && imageOutput != "" {
-		fmt.Print(imageOutput)
-	} else if !config.Display.ShowLogoFirst && config.Logo.EnableLogo && logoOutput != "" {
-		fmt.Print(logoOutput)
-		fmt.Println()
+	if topContent != "" {
+		result.WriteString(topContent + "\n")
 	}
+
+	if (config.Logo.EnableLogo && (config.Logo.Position == "left" || config.Logo.Position == "right")) ||
+		(config.Image.EnableImage && (config.Image.Position == "left" || config.Image.Position == "right")) {
+
+		if config.Logo.EnableLogo && config.Logo.Position == "right" &&
+			config.Image.EnableImage && config.Image.Position == "left" {
+
+			combined := mergeSideBySide(normalizeOutput(imageOutput), sysInfo)
+
+			result.WriteString(mergeSideBySide(combined, logoOutput))
+		} else if config.Logo.EnableLogo && config.Logo.Position == "left" &&
+			config.Image.EnableImage && config.Image.Position == "right" {
+
+			combined := mergeSideBySide(logoOutput, sysInfo)
+
+			result.WriteString(mergeSideBySide(combined, normalizeOutput(imageOutput)))
+		} else if config.Logo.EnableLogo && config.Logo.Position == "left" {
+
+			result.WriteString(mergeSideBySide(logoOutput, sysInfo))
+		} else if config.Logo.EnableLogo && config.Logo.Position == "right" {
+
+			result.WriteString(mergeSideBySide(sysInfo, logoOutput))
+		} else if config.Image.EnableImage && config.Image.Position == "left" {
+
+			normalizedImage := normalizeOutput(imageOutput)
+			result.WriteString(mergeSideBySide(normalizedImage, sysInfo))
+		} else if config.Image.EnableImage && config.Image.Position == "right" {
+
+			result.WriteString(mergeSideBySide(sysInfo, normalizeOutput(imageOutput)))
+		}
+	} else {
+
+		result.WriteString(middleContent)
+	}
+
+	if bottomContent != "" {
+		result.WriteString("\n" + bottomContent)
+	}
+
+	finalOutput := result.String()
+	if !strings.HasSuffix(finalOutput, "\n") {
+		finalOutput += "\n"
+	}
+
+	fmt.Print(finalOutput)
+}
+
+func mergeSideBySide(left, right string) string {
+	if left == "" {
+		return right
+	}
+	if right == "" {
+		return left
+	}
+
+	leftLines := strings.Split(strings.TrimRight(left, "\n"), "\n")
+	rightLines := strings.Split(strings.TrimRight(right, "\n"), "\n")
+
+	for i := range leftLines {
+		leftLines[i] = strings.TrimRight(leftLines[i], " ")
+	}
+	for i := range rightLines {
+		rightLines[i] = strings.TrimRight(rightLines[i], " ")
+	}
+
+	for len(leftLines) > 0 && strings.TrimSpace(leftLines[len(leftLines)-1]) == "" {
+		leftLines = leftLines[:len(leftLines)-1]
+	}
+	for len(rightLines) > 0 && strings.TrimSpace(rightLines[len(rightLines)-1]) == "" {
+		rightLines = rightLines[:len(rightLines)-1]
+	}
+
+	maxLeftWidth := 0
+	for _, line := range leftLines {
+		width := len([]rune(line))
+		if width > maxLeftWidth {
+			maxLeftWidth = width
+		}
+	}
+
+	padding := 2
+	totalPadding := maxLeftWidth + padding
+
+	var result strings.Builder
+	maxLines := len(leftLines)
+	if len(rightLines) > maxLines {
+		maxLines = len(rightLines)
+	}
+
+	for i := 0; i < maxLines; i++ {
+		var leftLine, rightLine string
+
+		if i < len(leftLines) {
+			leftLine = leftLines[i]
+		}
+		if i < len(rightLines) {
+			rightLine = rightLines[i]
+		}
+
+		if leftLine == "" && rightLine == "" {
+			continue
+		}
+
+		currentPadding := totalPadding - len([]rune(leftLine))
+		if currentPadding < 0 {
+			currentPadding = padding
+		}
+
+		if leftLine != "" {
+			result.WriteString(leftLine)
+			if rightLine != "" {
+				result.WriteString(strings.Repeat(" ", currentPadding))
+			}
+		} else if rightLine != "" {
+
+			result.WriteString(strings.Repeat(" ", totalPadding))
+		}
+
+		if rightLine != "" {
+			result.WriteString(rightLine)
+		}
+
+		if i < maxLines-1 {
+			result.WriteString("\n")
+		}
+	}
+
+	return result.String()
+}
+
+func normalizeOutput(output string) string {
+	lines := strings.Split(strings.TrimRight(output, "\n"), "\n")
+
+	for i := range lines {
+		lines[i] = strings.TrimRight(lines[i], " ")
+	}
+
+	for len(lines) > 0 && strings.TrimSpace(lines[len(lines)-1]) == "" {
+		lines = lines[:len(lines)-1]
+	}
+
+	maxLength := 0
+	for _, line := range lines {
+		lineLength := len([]rune(line))
+		if lineLength > maxLength {
+			maxLength = lineLength
+		}
+	}
+
+	for i, line := range lines {
+		currentLength := len([]rune(line))
+		if currentLength < maxLength {
+
+			lines[i] = line + strings.Repeat(" ", maxLength-currentLength)
+		}
+	}
+
+	return strings.Join(lines, "\n")
 }

@@ -11,19 +11,16 @@ import (
 	"time"
 )
 
-// LogoLoader handles loading ASCII art logos
 type LogoLoader struct {
 	LogoPath string
 }
 
-// NewLogoLoader creates a new LogoLoader with the specified path
 func NewLogoLoader(logoPath string) *LogoLoader {
 	return &LogoLoader{
 		LogoPath: logoPath,
 	}
 }
 
-// GetRandomLogo returns a random logo from the logo directory
 func (l *LogoLoader) GetRandomLogo() (string, error) {
 	expandedPath, err := os.UserHomeDir()
 	if err != nil {

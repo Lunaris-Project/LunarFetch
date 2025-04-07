@@ -5,7 +5,6 @@ import (
 	"strings"
 )
 
-// BoxConfig holds the configuration for box drawing
 type BoxConfig struct {
 	TopLeft     string
 	TopRight    string
@@ -18,19 +17,16 @@ type BoxConfig struct {
 	Separator   string
 }
 
-// BoxDrawer handles drawing boxes around content
 type BoxDrawer struct {
 	Config BoxConfig
 }
 
-// NewBoxDrawer creates a new BoxDrawer with the specified configuration
 func NewBoxDrawer(config BoxConfig) *BoxDrawer {
 	return &BoxDrawer{
 		Config: config,
 	}
 }
 
-// Draw draws a box around the provided content
 func (b *BoxDrawer) Draw(content string) string {
 	lines := strings.Split(content, "\n")
 	maxLen := 0

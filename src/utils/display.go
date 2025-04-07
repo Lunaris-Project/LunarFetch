@@ -8,7 +8,6 @@ import (
 	"lunarfetch/src/components"
 )
 
-// DisplayManager handles the initialization and display of system information
 type DisplayManager struct {
 	Config        Config
 	InfoProviders map[string]components.InfoProvider
@@ -16,7 +15,6 @@ type DisplayManager struct {
 	cacheMutex    sync.RWMutex
 }
 
-// NewDisplayManager creates a new DisplayManager with the specified configuration
 func NewDisplayManager(config Config) *DisplayManager {
 	return &DisplayManager{
 		Config:        config,
@@ -25,9 +23,7 @@ func NewDisplayManager(config Config) *DisplayManager {
 	}
 }
 
-// InitializeComponents initializes all system information components
 func (d *DisplayManager) InitializeComponents() {
-	// Initialize components with their names
 	osInfo := &components.OSInfo{SystemInfo: components.SystemInfo{Name: "OS"}}
 	hostInfo := &components.HostInfo{SystemInfo: components.SystemInfo{Name: "Host"}}
 	kernelInfo := &components.KernelInfo{SystemInfo: components.SystemInfo{Name: "Kernel"}}
@@ -47,7 +43,6 @@ func (d *DisplayManager) InitializeComponents() {
 	wmThemeInfo := &components.WMThemeInfo{SystemInfo: components.SystemInfo{Name: "WM Theme"}}
 	iconsInfo := &components.IconsInfo{SystemInfo: components.SystemInfo{Name: "Icons"}}
 
-	// Add components to the map
 	d.InfoProviders["OS"] = osInfo
 	d.InfoProviders["Host"] = hostInfo
 	d.InfoProviders["Kernel"] = kernelInfo
@@ -68,9 +63,7 @@ func (d *DisplayManager) InitializeComponents() {
 	d.InfoProviders["Icons"] = iconsInfo
 }
 
-// GetInfoParallel gathers all system information in parallel
 func (d *DisplayManager) GetInfoParallel() {
-	// Create a list of components to gather info for
 	var components []string
 
 	if d.Config.Modules.ShowHost {
@@ -128,11 +121,9 @@ func (d *DisplayManager) GetInfoParallel() {
 		components = append(components, "Desktop")
 	}
 
-	// Create a wait group to wait for all goroutines to finish
 	var wg sync.WaitGroup
 	wg.Add(len(components))
 
-	// Gather info for each component in parallel
 	for _, component := range components {
 		go func(comp string) {
 			defer wg.Done()
@@ -143,18 +134,14 @@ func (d *DisplayManager) GetInfoParallel() {
 		}(component)
 	}
 
-	// Wait for all goroutines to finish
 	wg.Wait()
 }
 
-// GenerateContent generates the content to be displayed
 func (d *DisplayManager) GenerateContent() string {
-	// Gather all info in parallel first
 	d.GetInfoParallel()
 
 	var content strings.Builder
 
-	// Use the cached info to build the content
 	d.cacheMutex.RLock()
 	defer d.cacheMutex.RUnlock()
 
@@ -218,9 +205,7 @@ func (d *DisplayManager) GenerateContent() string {
 	return strings.TrimSpace(content.String())
 }
 
-// Display displays the system information
 func (d *DisplayManager) Display() string {
-	// Create a box drawer
 	boxConfig := BoxConfig{
 		TopLeft:     d.Config.Decorations.TopLeft,
 		TopRight:    d.Config.Decorations.TopRight,
@@ -234,7 +219,6 @@ func (d *DisplayManager) Display() string {
 	}
 	boxDrawer := NewBoxDrawer(boxConfig)
 
-	// Generate content and draw box
 	content := d.GenerateContent()
 	return boxDrawer.Draw(content)
 }

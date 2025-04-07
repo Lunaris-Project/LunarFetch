@@ -3,13 +3,14 @@
 A modern, customizable system information display tool with image rendering capabilities.
 
 <div align="center">
-<a href="#features">Features</a> •
-<a href="#installation">Installation</a> •
-<a href="#usage">Usage</a> •
-<a href="#configuration">Configuration</a> •
-<a href="#image-rendering-and-dithering">Image Rendering</a> •
-<a href="#contributing">Contributing</a> •
-<a href="#license">License</a>
+<a href="#-features">Features</a> •
+<a href="#-installation">Installation</a> •
+<a href="#-usage">Usage</a> •
+<a href="#️-configuration">Configuration</a> •
+<a href="#-positioning">Positioning</a> •
+<a href="#-image-rendering-and-dithering">Image Rendering</a> •
+<a href="#-contributing">Contributing</a> •
+<a href="#-license">License</a>
 </div>
 
 ## ✨ Features
@@ -138,7 +139,7 @@ LunarFetch can be configured using a JSON configuration file located at `~/.conf
 - `content`: Custom ASCII content (when type is `"ascii"`)
 - `location`: Text alignment (`"center"`, `"left"`, or `"right"`)
 - `logoPath`: Directory containing logo files
-- `position`: Position relative to system info (`"side"` or `"above"`)
+- `position`: Position relative to system info (`"left"`, `"right"`, `"above"`, `"below"`, or `"side"` which is equivalent to `"right"`)
 
 </details>
 
@@ -194,7 +195,7 @@ LunarFetch can be configured using a JSON configuration file located at `~/.conf
 - `scale`: Image scaling factor (integer)
 - `offset`: Offset from terminal edge (integer)
 - `background`: Background color (`"transparent"` or a color value)
-- `position`: Position relative to system info (`"side"` or `"above"`)
+- `position`: Position relative to system info (`"left"`, `"right"`, `"above"`, `"below"`, or `"side"` which is equivalent to `"right"`)
 
 </details>
 
@@ -214,6 +215,109 @@ LunarFetch can be configured using a JSON configuration file located at `~/.conf
 - `showImageFirst`: When `true`, image appears before system info
 
 Note: If both are `true`, logo takes precedence.
+
+</details>
+
+<details>
+<summary><b>🧩 Positioning</b> - Advanced positioning options</summary>
+
+LunarFetch offers flexible positioning options for both logos and images, with support for combining multiple elements in various arrangements.
+
+### Position Options
+
+Both the logo and image components support the following position values:
+
+- `"left"`: Display on the left side of system information
+- `"right"`: Display on the right side of system information
+- `"above"`: Display above system information
+- `"below"`: Display below system information
+- `"side"`: Legacy option, equivalent to `"right"`
+
+### Advanced Positioning
+
+LunarFetch now supports displaying both logo and image simultaneously in different positions. You can combine any of the position options to create custom layouts:
+
+- Logo and image can be positioned on opposite sides (left/right)
+- One element can be above/below while the other is on the left/right
+- Both elements can be on the same side, with order controlled by display settings
+
+### Configuration Examples
+
+**Logo on left, image on right:**
+```json
+"logo": {
+  "position": "left",
+  "enableLogo": true
+},
+"image": {
+  "position": "right",
+  "enableImage": true
+}
+```
+
+**Logo on right, image on left:**
+```json
+"logo": {
+  "position": "right",
+  "enableLogo": true
+},
+"image": {
+  "position": "left",
+  "enableImage": true
+}
+```
+
+**Image above, logo below:**
+```json
+"logo": {
+  "position": "below",
+  "enableLogo": true
+},
+"image": {
+  "position": "above",
+  "enableImage": true
+}
+```
+
+**Logo above, image below:**
+```json
+"logo": {
+  "position": "above",
+  "enableLogo": true
+},
+"image": {
+  "position": "below",
+  "enableImage": true
+}
+```
+
+**Logo above, image on right:**
+```json
+"logo": {
+  "position": "above",
+  "enableLogo": true
+},
+"image": {
+  "position": "right",
+  "enableImage": true
+}
+```
+
+**Both on same side (order controlled by display settings):**
+```json
+"logo": {
+  "position": "right",
+  "enableLogo": true
+},
+"image": {
+  "position": "right",
+  "enableImage": true
+},
+"display": {
+  "showLogoFirst": true,
+  "showImageFirst": false
+}
+```
 
 </details>
 

@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 )
 
-// Default configuration values
 const (
 	DefaultConfigDir  = "~/.config/lunarfetch"
 	DefaultConfigFile = "config.json"
@@ -14,118 +13,106 @@ const (
 	DefaultImagePath  = "~/.config/lunarfetch/images"
 )
 
-// Config represents the application configuration
 type Config struct {
-	// Box drawing characters for display
 	Decorations struct {
-		TopLeft     string `json:"topLeft"`     // Top-left corner character
-		TopRight    string `json:"topRight"`    // Top-right corner character
-		BottomLeft  string `json:"bottomLeft"`  // Bottom-left corner character
-		BottomRight string `json:"bottomRight"` // Bottom-right corner character
-		TopEdge     string `json:"topEdge"`     // Top edge character
-		BottomEdge  string `json:"bottomEdge"`  // Bottom edge character
-		LeftEdge    string `json:"leftEdge"`    // Left edge character
-		RightEdge   string `json:"rightEdge"`   // Right edge character
-		Separator   string `json:"separator"`   // Separator between key and value
+		TopLeft     string `json:"topLeft"`
+		TopRight    string `json:"topRight"`
+		BottomLeft  string `json:"bottomLeft"`
+		BottomRight string `json:"bottomRight"`
+		TopEdge     string `json:"topEdge"`
+		BottomEdge  string `json:"bottomEdge"`
+		LeftEdge    string `json:"leftEdge"`
+		RightEdge   string `json:"rightEdge"`
+		Separator   string `json:"separator"`
 	} `json:"decorations"`
 
-	// Logo configuration
 	Logo struct {
-		EnableLogo bool   `json:"enableLogo"` // Whether to display a logo
-		Type       string `json:"type"`       // Logo type (ascii or file)
-		Content    string `json:"content"`    // Custom ASCII content
-		Location   string `json:"location"`   // Text alignment (center, left, right)
-		LogoPath   string `json:"logoPath"`   // Path to logo files
-		Position   string `json:"position"`   // Position (side or above)
+		EnableLogo bool   `json:"enableLogo"`
+		Type       string `json:"type"`
+		Content    string `json:"content"`
+		Location   string `json:"location"`
+		LogoPath   string `json:"logoPath"`
+		Position   string `json:"position"`
 	} `json:"logo"`
 
-	// Image configuration
 	Image struct {
-		EnableImage    bool   `json:"enableImage"`    // Whether to display an image
-		Enabled        bool   `json:"enabled"`        // Legacy field for backward compatibility
-		Random         bool   `json:"random"`         // Whether to select a random image
-		ImagePath      string `json:"imagePath"`      // Path to image file or directory
-		Width          int    `json:"width"`          // Width in terminal characters
-		Height         int    `json:"height"`         // Height in terminal characters
-		RenderMode     string `json:"renderMode"`     // Rendering mode
-		DitherMode     string `json:"ditherMode"`     // Dithering algorithm
-		TerminalOutput bool   `json:"terminalOutput"` // Whether to output directly to terminal
-		DisplayMode    string `json:"displayMode"`    // Display mode
-		Protocol       string `json:"protocol"`       // Image protocol
-		Scale          int    `json:"scale"`          // Image scaling factor
-		Offset         int    `json:"offset"`         // Offset from terminal edge
-		Background     string `json:"background"`     // Background color
-		Position       string `json:"position"`       // Position (side or above)
+		EnableImage    bool   `json:"enableImage"`
+		Enabled        bool   `json:"enabled"`
+		Random         bool   `json:"random"`
+		ImagePath      string `json:"imagePath"`
+		Width          int    `json:"width"`
+		Height         int    `json:"height"`
+		RenderMode     string `json:"renderMode"`
+		DitherMode     string `json:"ditherMode"`
+		TerminalOutput bool   `json:"terminalOutput"`
+		DisplayMode    string `json:"displayMode"`
+		Protocol       string `json:"protocol"`
+		Scale          int    `json:"scale"`
+		Offset         int    `json:"offset"`
+		Background     string `json:"background"`
+		Position       string `json:"position"`
 	} `json:"image"`
 
-	// Display order configuration
 	Display struct {
-		ShowLogoFirst  bool `json:"showLogoFirst"`  // Whether to show logo before system info
-		ShowImageFirst bool `json:"showImageFirst"` // Whether to show image before system info
+		ShowLogoFirst  bool `json:"showLogoFirst"`
+		ShowImageFirst bool `json:"showImageFirst"`
 	} `json:"display"`
 
-	// Icons for system information
 	Icons struct {
-		Host       string `json:"host"`       // Host icon
-		User       string `json:"user"`       // User icon
-		OS         string `json:"os"`         // OS icon
-		Kernel     string `json:"kernel"`     // Kernel icon
-		Uptime     string `json:"uptime"`     // Uptime icon
-		Terminal   string `json:"terminal"`   // Terminal icon
-		Shell      string `json:"shell"`      // Shell icon
-		Disk       string `json:"disk"`       // Disk icon
-		Memory     string `json:"memory"`     // Memory icon
-		Packages   string `json:"packages"`   // Packages icon
-		Battery    string `json:"battery"`    // Battery icon
-		GPU        string `json:"gpu"`        // GPU icon
-		CPU        string `json:"cpu"`        // CPU icon
-		Resolution string `json:"resolution"` // Resolution icon
-		DE         string `json:"de"`         // Desktop Environment icon
-		WMTheme    string `json:"wm_theme"`   // Window Manager Theme icon
-		Theme      string `json:"theme"`      // Theme icon
-		Icons      string `json:"icons"`      // Icons icon
+		Host       string `json:"host"`
+		User       string `json:"user"`
+		OS         string `json:"os"`
+		Kernel     string `json:"kernel"`
+		Uptime     string `json:"uptime"`
+		Terminal   string `json:"terminal"`
+		Shell      string `json:"shell"`
+		Disk       string `json:"disk"`
+		Memory     string `json:"memory"`
+		Packages   string `json:"packages"`
+		Battery    string `json:"battery"`
+		GPU        string `json:"gpu"`
+		CPU        string `json:"cpu"`
+		Resolution string `json:"resolution"`
+		DE         string `json:"de"`
+		WMTheme    string `json:"wm_theme"`
+		Theme      string `json:"theme"`
+		Icons      string `json:"icons"`
 	} `json:"icons"`
 
-	// Module visibility configuration
 	Modules struct {
-		ShowUser       bool `json:"show_user"`       // Whether to show user information
-		ShowCPU        bool `json:"show_cpu"`        // Whether to show CPU information
-		ShowGPU        bool `json:"show_gpu"`        // Whether to show GPU information
-		ShowUptime     bool `json:"show_uptime"`     // Whether to show uptime information
-		ShowShell      bool `json:"show_shell"`      // Whether to show shell information
-		ShowMemory     bool `json:"show_memory"`     // Whether to show memory information
-		ShowPackages   bool `json:"show_packages"`   // Whether to show packages information
-		ShowOS         bool `json:"show_os"`         // Whether to show OS information
-		ShowHost       bool `json:"show_host"`       // Whether to show host information
-		ShowKernel     bool `json:"show_kernel"`     // Whether to show kernel information
-		ShowBattery    bool `json:"show_battery"`    // Whether to show battery information
-		ShowDisk       bool `json:"show_disk"`       // Whether to show disk information
-		ShowResolution bool `json:"show_resolution"` // Whether to show resolution information
-		ShowDE         bool `json:"show_de"`         // Whether to show desktop environment information
-		ShowWMTheme    bool `json:"show_wm_theme"`   // Whether to show window manager theme information
-		ShowTheme      bool `json:"show_theme"`      // Whether to show theme information
-		ShowIcons      bool `json:"show_icons"`      // Whether to show icons information
-		ShowTerminal   bool `json:"show_terminal"`   // Whether to show terminal information
+		ShowUser       bool `json:"show_user"`
+		ShowCPU        bool `json:"show_cpu"`
+		ShowGPU        bool `json:"show_gpu"`
+		ShowUptime     bool `json:"show_uptime"`
+		ShowShell      bool `json:"show_shell"`
+		ShowMemory     bool `json:"show_memory"`
+		ShowPackages   bool `json:"show_packages"`
+		ShowOS         bool `json:"show_os"`
+		ShowHost       bool `json:"show_host"`
+		ShowKernel     bool `json:"show_kernel"`
+		ShowBattery    bool `json:"show_battery"`
+		ShowDisk       bool `json:"show_disk"`
+		ShowResolution bool `json:"show_resolution"`
+		ShowDE         bool `json:"show_de"`
+		ShowWMTheme    bool `json:"show_wm_theme"`
+		ShowTheme      bool `json:"show_theme"`
+		ShowIcons      bool `json:"show_icons"`
+		ShowTerminal   bool `json:"show_terminal"`
 	} `json:"modules"`
 }
 
-// ConfigLoader handles loading configuration from files
 type ConfigLoader struct{}
 
-// NewConfigLoader creates a new ConfigLoader
 func NewConfigLoader() *ConfigLoader {
 	return &ConfigLoader{}
 }
 
-// LoadConfig loads the configuration from the specified path or default location
 func (c *ConfigLoader) LoadConfig(paths ...string) (Config, error) {
 	var configPath string
 
-	// If a path is provided, use it
 	if len(paths) > 0 && paths[0] != "" {
 		configPath = paths[0]
 	} else {
-		// Otherwise, use the default path
 		homeDir, err := os.UserHomeDir()
 		if err != nil {
 			return DefaultConfig(), err
@@ -135,34 +122,27 @@ func (c *ConfigLoader) LoadConfig(paths ...string) (Config, error) {
 		configPath = filepath.Join(configDir, "config.json")
 	}
 
-	// Check if the file exists
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		// If the file doesn't exist, create a default config
 		return DefaultConfig(), err
 	}
 
-	// Read the file
 	data, err := os.ReadFile(configPath)
 	if err != nil {
 		return DefaultConfig(), err
 	}
 
-	// Parse the JSON
 	var config Config
 	err = json.Unmarshal(data, &config)
 	if err != nil {
 		return DefaultConfig(), err
 	}
 
-	// Apply any necessary fixes or defaults to the loaded config
 	config = applyConfigDefaults(config)
 
 	return config, nil
 }
 
-// applyConfigDefaults ensures all required fields have values
 func applyConfigDefaults(config Config) Config {
-	// Apply defaults for decorations if not set
 	if config.Decorations.TopLeft == "" {
 		config.Decorations.TopLeft = "╭"
 	}
@@ -191,7 +171,6 @@ func applyConfigDefaults(config Config) Config {
 		config.Decorations.Separator = ": "
 	}
 
-	// Apply defaults for logo if not set
 	if config.Logo.LogoPath == "" {
 		homeDir, _ := os.UserHomeDir()
 		config.Logo.LogoPath = filepath.Join(homeDir, ".config", "lunarfetch", "logos")
@@ -206,7 +185,6 @@ func applyConfigDefaults(config Config) Config {
 		config.Logo.Position = "side"
 	}
 
-	// Apply defaults for image if not set
 	if config.Image.ImagePath == "" {
 		homeDir, _ := os.UserHomeDir()
 		config.Image.ImagePath = filepath.Join(homeDir, ".config", "lunarfetch", "images")
@@ -239,16 +217,12 @@ func applyConfigDefaults(config Config) Config {
 		config.Image.Position = "side"
 	}
 
-	// For backward compatibility
-
 	return config
 }
 
-// DefaultConfig returns the default configuration
 func DefaultConfig() Config {
 	var config Config
 
-	// Set default decorations
 	config.Decorations.TopLeft = "╭"
 	config.Decorations.TopRight = "╮"
 	config.Decorations.BottomLeft = "╰"
@@ -259,7 +233,6 @@ func DefaultConfig() Config {
 	config.Decorations.RightEdge = "│"
 	config.Decorations.Separator = ": "
 
-	// Set default logo settings
 	config.Logo.EnableLogo = true
 	config.Logo.Type = "ascii"
 	config.Logo.Location = "center"
@@ -267,7 +240,6 @@ func DefaultConfig() Config {
 	homeDir, _ := os.UserHomeDir()
 	config.Logo.LogoPath = filepath.Join(homeDir, ".config", "lunarfetch", "logos")
 
-	// Set default image settings
 	config.Image.EnableImage = true
 	config.Image.Enabled = true
 	config.Image.Random = true
@@ -284,11 +256,9 @@ func DefaultConfig() Config {
 	config.Image.Background = "transparent"
 	config.Image.Position = "side"
 
-	// Set default display settings
 	config.Display.ShowLogoFirst = true
 	config.Display.ShowImageFirst = false
 
-	// Set default icons
 	config.Icons.Host = "󰒋"
 	config.Icons.User = "󰀄"
 	config.Icons.OS = "󰣇"
@@ -308,7 +278,6 @@ func DefaultConfig() Config {
 	config.Icons.Theme = "󰔯"
 	config.Icons.Icons = "󰀻"
 
-	// Set default module visibility
 	config.Modules.ShowUser = true
 	config.Modules.ShowCPU = true
 	config.Modules.ShowGPU = true

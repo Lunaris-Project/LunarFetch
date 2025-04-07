@@ -1,0 +1,81 @@
+{
+  "decorations": {
+    "topLeft": "╭",
+    "topRight": "╮",
+    "bottomLeft": "╰",
+    "bottomRight": "╯",
+    "topEdge": "─",
+    "bottomEdge": "─",
+    "leftEdge": "│",
+    "rightEdge": "│",
+    "separator": ": "
+  },
+  "logo": {
+    "enableLogo": false,
+    "type": "ascii",
+    "content": "",
+    "location": "center",
+    "logoPath": "~/.config/lunarfetch/logos",
+    "position": "side"
+  },
+  "image": {
+    "enableImage": true,
+    "random": true,
+    "imagePath": "~/.config/lunarfetch/images",
+    "width": 40,
+    "height": 20,
+    "renderMode": "block",
+    "ditherMode": "floyd-steinberg",
+    "terminalOutput": true,
+    "displayMode": "block",
+    "protocol": "chafa",
+    "scale": 1,
+    "offset": 2,
+    "background": "transparent",
+    "position": "left"
+  },
+  "display": {
+    "showLogoFirst": false,
+    "showImageFirst": true
+  },
+  "icons": {
+    "battery": "󰂄",
+    "cpu": "󰘚",
+    "de": "󰧨",
+    "disk": "󰋊",
+    "gpu": "󰢮",
+    "host": "󰒋",
+    "icons": "󰀻",
+    "kernel": "󰣇",
+    "memory": "󰍛",
+    "os": "󰣇",
+    "packages": "󰏗",
+    "resolution": "󰍹",
+    "shell": "󰆍",
+    "terminal": "󰆍",
+    "theme": "󰔯",
+    "uptime": "󰔟",
+    "user": "󰀄",
+    "wm_theme": "󰏘"
+  },
+  "modules": {
+    "show_battery": true,
+    "show_cpu": true,
+    "show_de": true,
+    "show_disk": true,
+    "show_gpu": true,
+    "show_host": true,
+    "show_icons": true,
+    "show_kernel": true,
+    "show_memory": true,
+    "show_os": true,
+    "show_packages": true,
+    "show_resolution": true,
+    "show_shell": true,
+    "show_terminal": true,
+    "show_theme": true,
+    "show_uptime": true,
+    "show_user": true,
+    "show_wm_theme": true
+  }
+} 
